@@ -1,0 +1,4 @@
+To create a pdf from a .tex file in combination with a .bib file do the following (do not use the extensions in the names of the files):
+
+run:
+	make FNAME=<name of .tex file> BNAME=<name of .bib file>
