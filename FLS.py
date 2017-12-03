@@ -1,5 +1,5 @@
 import numpy as np
-
+from collections import Counter
 
 # Membership Functions ########################################################
 
@@ -102,18 +102,17 @@ class Rule:
         self.op = op[0].upper()
         self.subop = op[1].upper()
         self.con_dict = con
-        self.fs = 0
         assert (self.op, self.subop) in [
             ("AND", "MIN"),
             ("AND", "PROD"),
             ("OR", "MAX"),
             ("OR", "PROBOR")
         ], "Invalid operation type"
-    def update_fs(self, x_dict, inputs):
+    def get_fs(self, x_dict, inputs):
         if self.op == "AND":
-            self.fs = 1
+            fs = 1
         elif self.op == "OR":
-            self.fs = 0
+            fs = 0
         for cur_in in [i for i in inputs if i.name in self.ant_dict]:
             assert cur_in.name in x_dict, "Insufficient data"
             ant_fs = cur_in.get_mf(
@@ -121,20 +120,39 @@ class Rule:
             ).membership(x_dict[cur_in.name])
             if self.op == "AND":
                 if self.subop == "MIN":
-                    if ant_fs < self.fs:
-                        self.fs = ant_fs
+                    if ant_fs < fs:
+                        fs = ant_fs
                 elif self.subop == "PROD":
-                    self.fs *= ant_fs
+                    fs *= ant_fs
             elif self.op == "OR":
                 if self.subop == "MAX":
-                    if ant_fs > self.fs:
-                        self.fs = ant_fs
+                    if ant_fs > fs:
+                        fs = ant_fs
                 if self.subop == "PROBOR":
-                    self.fs = self.fs + ant_fs - self.fs*ant_fs
-        return self.fs
+                    fs = fs + ant_fs - fs*ant_fs
+        return fs
+
+class Rulebase:
+    def __init__(self, rules):
+        self.rules = rules
+    def get_fs(self, x_dict, inputs):
+        result = {}
+        for rule in self.rules:
+            fs = rule.get_fs(x_dict, inputs)
+            con_dict = rule.con_dict
+            for con in con_dict:
+                if con not in result:
+                    result[con] = Counter()
+                if fs > result[con][con_dict[con]]:
+                    result[con][con_dict[con]] = fs
+        return result
+
+###############################################################################
 
 
-# TODO create rulebase
+
+# Reasoner ####################################################################
+
 
 
 ###############################################################################
@@ -208,14 +226,37 @@ output = money
 rule1 = Rule(
     {"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}
 )
-#print(rule1.update_fs({"income":200, "quality":6.5}, inputs))
-#print(rule1.update_fs({"income":0, "quality":10}, inputs))
+#print(rule1.get_fs({"income":200, "quality":6.5}, inputs))
+#print(rule1.get_fs({"income":0, "quality":10}, inputs))
 
 rule2 = Rule(
     {"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"}
 )
-#print(rule2.update_fs({"income":100, "quality":8}, inputs))
-#print(rule2.update_fs({"income":700, "quality":3}, inputs))
+#print(rule2.get_fs({"income":100, "quality":8}, inputs))
+#print(rule2.get_fs({"income":700, "quality":3}, inputs))
+
+
+# RULEBASE
+# Add the rules listed in the question description
+# Your code here
+rules = [
+    Rule({"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
+    Rule({"income":"medium", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
+    Rule({"income":"high", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
+    Rule({"income":"low", "quality":"okay"}, ("and", "min"), {"money":"low"}),
+    Rule({"income":"medium", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
+    Rule({"income":"high", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
+    Rule({"income":"low", "quality":"bad"}, ("and", "min"), {"money":"low"}),
+    Rule({"income":"medium", "quality":"bad"}, ("and", "min"), {"money":"medium"}),
+    Rule({"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"})
+]
+rulebase = Rulebase(rules)
+# Test your implementation of calculate_firing_strengths()
+# Enter your answers in the Google form to check them, round to two decimals
+datapoint = {"income":500, "quality":3}
+#print(rulebase.get_fs(datapoint, inputs))
+datapoint = {"income":234, "quality":7.5}
+#print(rulebase.get_fs(datapoint, inputs))
 
 
 # TODO
