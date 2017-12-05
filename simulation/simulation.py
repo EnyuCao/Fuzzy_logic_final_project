@@ -23,7 +23,7 @@ def create_background():
             row = y // tile_width
             col = x // tile_width
             pygame.draw.rect(
-                    background, 
+                    background,
                     colors[(row + col) % 2],
                     pygame.Rect(x, y, tile_width, tile_width))
             x += tile_width
@@ -86,6 +86,12 @@ class Player(Unit):
         self.size = size
         self.fl = fl
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
+
+    #TODO: rotateable player,
+
+    #TODO: read out raytrace in specific directions
+
+    #TODO: input function so our fuzzy system can interact with the simulation
 
     def handleInput(self, keys):
         if (not self.fl):
