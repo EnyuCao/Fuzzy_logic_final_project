@@ -142,7 +142,7 @@ class Obstacle_rect(Unit):
         if(height is None):
             self.height = width
         else:
-            self.height = width
+            self.height = height
 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
