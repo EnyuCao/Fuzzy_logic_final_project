@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import pygame
+import numpy as np
 
 pygame.init()
 done = False
@@ -34,6 +35,9 @@ def create_background():
 def filterEvents():
     global done
     keysPressed = pygame.key.get_pressed()
+    # Quit on escape
+    if keysPressed[pygame.K_ESCAPE]:
+        done = True
 
     filteredEvents = []
     for event in pygame.event.get():
@@ -82,12 +86,12 @@ class Player(Unit):
     def __init__(self, x, y, size, speed, fl=False):
         self.x = x
         self.y = y
+        self.phi = np.pi
+        self.rspeed = 5
         self.speed = speed
         self.size = size
         self.fl = fl
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
-
-    #TODO: rotateable player,
 
     #TODO: read out raytrace in specific directions
 
@@ -98,13 +102,15 @@ class Player(Unit):
             self.dx = 0
             self.dy = 0
             if keys[pygame.K_UP]:
-                self.dy = -1
+                self.dx = np.sin(self.phi)
+                self.dy = np.cos(self.phi)
             if keys[pygame.K_DOWN]:
-                self.dy = 1
+                self.dx = -np.sin(self.phi)
+                self.dy = -np.cos(self.phi)
             if keys[pygame.K_LEFT]:
-                self.dx = -1
+                self.phi += np.pi*self.rspeed/180.
             if keys[pygame.K_RIGHT]:
-                self.dx = 1
+                self.phi -= np.pi*self.rspeed/180.
 
     def update(self, objects):
 
@@ -116,6 +122,8 @@ class Player(Unit):
         nx = self.x + self.dx * self.speed
         ny = self.y + self.dy * self.speed
 
+        # TODO Does not take into account the rotation of the player,
+        # TODO also there are no rotated objects yet
         nRect = pygame.Rect(nx, ny, self.size, self.size)
         for obj in objects:
             if (obj.checkCollsion_rect(nRect)):
@@ -128,7 +136,14 @@ class Player(Unit):
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
+        R = np.array([
+            [np.cos(self.phi),-np.sin(self.phi)],
+            [np.sin(self.phi),np.cos(self.phi)]]
+        )
+        coords_O = np.array([[-1,-1],[-1,1],[1,1],[1,-1]])
+        coords_O_R = coords_O.dot(R)
+        coords = (coords_O_R + 1)* 0.5*self.size + np.array([self.x,self.y])
+        pygame.draw.polygon(screen, self.color, coords)
 
 
 class Obstacle_rect(Unit):
