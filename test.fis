@@ -1,0 +1,32 @@
+[System]
+Name='CT'
+NumInputs=2
+NumOutputs=1
+NumRules=12
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='income'
+Range=[0 1000]
+MF1='low':'tramf',[0 0 200 400]
+MF2='medium':'trimf',[200 500 800]
+MF3='high':'tramf',[600 800 1000 1000]
+
+[Input2]
+Name='quality'
+Range=[0 10]
+NumMFs=4
+MF1='bad':'tramf',[0 0 2 4]
+MF2='okay':'trimf',[2 5 8]
+MF3='amazing':'tramf',[6 8 10 10]
+
+[Output1]
+Name='money'
+Range=[0 500]
+MF1='low':'tramf',[0 0 100 250]
+MF2='medium':'trimf',[150 250 350]
+MF3='high':'tramf',[250 400 500 500]

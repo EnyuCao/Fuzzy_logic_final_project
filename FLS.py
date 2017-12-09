@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
 import numpy as np
+import matplotlib.pyplot as plt
 from collections import Counter
 
 # Membership Functions ########################################################
+
 
 class TriangularMF:
     def __init__(self, name, a, b, c):
@@ -9,6 +12,7 @@ class TriangularMF:
         self.a = a
         self.b = b
         self.c = c
+
     def membership(self, x):
         if x < self.a or x > self.c:
             return 0
@@ -19,6 +23,7 @@ class TriangularMF:
         else:
             return (self.c - x) / float(self.c - self.b)
 
+
 class TrapezoidalMF:
     def __init__(self, name, a, b, c, d):
         self.name = name
@@ -26,6 +31,7 @@ class TrapezoidalMF:
         self.b = b
         self.c = c
         self.d = d
+
     def membership(self, x):
         if x < self.a or x > self.d:
             return 0
@@ -36,54 +42,65 @@ class TrapezoidalMF:
         else:
             return 1
 
+
 class GaussianMF:
     def __init__(self, name, m, s):
         self.name = name
         self.m = m
         self.s = s
+
     def membership(self, x):
         return np.e**(-.5*((x - self.m) / float(self.s))**2)
 
+
 class BellShapedMF:
+
     def __init__(self, name, m, s, a):
         self.name = name
         self.m = m
         self.s = s
         self.a = a
+
     def membership(self, x):
         return 1 / float(1 + abs((x - self.m) / float(self.s))**(2 * self.a))
 
+
 class SigmoidalMF:
+
     def __init__(self, name, a, c):
         self.name = name
         self.a = a
         self.c = c
+
     def membership(self, x):
         return 1 / float(1 + np.e**(-self.a*(x - self.c)))
 
 ###############################################################################
 
-
-
 # Variables ###################################################################
+
 
 class Variable:
     def __init__(self, name, r, mfs):
         self.name = name
         self.r = r
         self.mfs = mfs
+
     def membership(self, x):
         assert x > self.r[0] and x < self.r[1], 'Value out of range'
-        return {mf.name:mf.membership(x) for mf in self.mfs}
+        return {mf.name: mf.membership(x) for mf in self.mfs}
+
     def get_mf(self, name):
         for mf in self.mfs:
             if mf.name == name:
                 return mf
 
+
 class Input(Variable):
     def __init__(self, name, r, mfs):
         super().__init__(name, r, mfs)
         self.type = 'input'
+
 
 class Output(Variable):
     def __init__(self, name, r, mfs):
@@ -92,9 +109,8 @@ class Output(Variable):
 
 ###############################################################################
 
-
-
 # Rules #######################################################################
+
 
 class Rule:
     def __init__(self, ant, op, con):
@@ -108,6 +124,7 @@ class Rule:
             ("OR", "MAX"),
             ("OR", "PROBOR")
         ], "Invalid operation type"
+
     def get_fs(self, x_dict, inputs):
         if self.op == "AND":
             fs = 1
@@ -132,9 +149,11 @@ class Rule:
                     fs = fs + ant_fs - fs*ant_fs
         return fs
 
+
 class Rulebase:
     def __init__(self, rules):
         self.rules = rules
+
     def get_fs(self, x_dict, inputs):
         result = {}
         for rule in self.rules:
@@ -149,19 +168,12 @@ class Rulebase:
 
 ###############################################################################
 
-
-
 # Reasoner ####################################################################
-
-
 
 ###############################################################################
 
-
-
 # Tests #######################################################################
 
-import matplotlib.pyplot as plt
 
 # not used anymore
 def pltMF(mf, p, q):
@@ -174,6 +186,7 @@ def pltMF(mf, p, q):
     plt.legend()
     plt.show()
 
+
 def plot_var(var):
     x = np.arange(var.r[0], var.r[1], (var.r[1]-var.r[0])/100.)
     plt.figure()
@@ -185,82 +198,84 @@ def plot_var(var):
     plt.show()
     return
 
-# Input variable for your income
-# Your code here
-mfs_income = [
-    TrapezoidalMF("low", 0, 0, 200, 400),
-    TriangularMF("medium", 200, 500, 800),
-    TrapezoidalMF("high", 600, 800, 1000, 1000)
-]
-income = Input("income", (0, 1000), mfs_income)
+if __name__ == "__main__":
 
-# Input variable for the quality
-# Your code here
-mfs_quality = [
-    TrapezoidalMF("bad", 0, 0, 2, 4),
-    TriangularMF("okay", 2, 5, 8),
-    TrapezoidalMF("amazing", 6, 8, 10, 10)
-]
-quality = Input("quality", (0, 10), mfs_quality)
+    # Input variable for your income
+    # Your code here
+    mfs_income = [
+        TrapezoidalMF("low", 0, 0, 200, 400),
+        TriangularMF("medium", 200, 500, 800),
+        TrapezoidalMF("high", 600, 800, 1000, 1000)
+    ]
+    income = Input("income", (0, 1000), mfs_income)
 
-# Output variable for the amount of money
-# Your code here
-mfs_money = [
-    TrapezoidalMF("low", 0, 0, 100, 250),
-    TriangularMF("medium", 150, 250, 350),
-    TrapezoidalMF("high", 250, 400, 500, 500)
-]
-money = Output("money", (0, 500), mfs_money)
+    # Input variable for the quality
+    # Your code here
+    mfs_quality = [
+        TrapezoidalMF("bad", 0, 0, 2, 4),
+        TriangularMF("okay", 2, 5, 8),
+        TrapezoidalMF("amazing", 6, 8, 10, 10)
+    ]
+    quality = Input("quality", (0, 10), mfs_quality)
+   
+    # Output variable for the amount of money
+    # Your code here
+    mfs_money = [
+        TrapezoidalMF("low", 0, 0, 100, 250),
+        TriangularMF("medium", 150, 250, 350),
+        TrapezoidalMF("high", 250, 400, 500, 500)
+    ]
+    money = Output("money", (0, 500), mfs_money)
 
-inputs = [income, quality]
-output = money
+    inputs = [income, quality]
+    output = money
 
-#print(income.membership(489))
-#print(quality.membership(6))
-#print(output.membership(222))
+    #print(income.membership(489))
+    #print(quality.membership(6))
+    #print(output.membership(222))
 
-#plot_var(income)
-#plot_var(quality)
-#plot_var(money)
+    # plot_var(income)
+    # plot_var(quality)
+    # plot_var(money)
 
-rule1 = Rule(
-    {"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}
-)
-#print(rule1.get_fs({"income":200, "quality":6.5}, inputs))
-#print(rule1.get_fs({"income":0, "quality":10}, inputs))
+    rule1 = Rule(
+        {"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}
+    )
+    #print(rule1.get_fs({"income":200, "quality":6.5}, inputs))
+    #print(rule1.get_fs({"income":0, "quality":10}, inputs))
 
-rule2 = Rule(
-    {"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"}
-)
-#print(rule2.get_fs({"income":100, "quality":8}, inputs))
-#print(rule2.get_fs({"income":700, "quality":3}, inputs))
-
-
-# RULEBASE
-# Add the rules listed in the question description
-# Your code here
-rules = [
-    Rule({"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-    Rule({"income":"medium", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-    Rule({"income":"high", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-    Rule({"income":"low", "quality":"okay"}, ("and", "min"), {"money":"low"}),
-    Rule({"income":"medium", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
-    Rule({"income":"high", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
-    Rule({"income":"low", "quality":"bad"}, ("and", "min"), {"money":"low"}),
-    Rule({"income":"medium", "quality":"bad"}, ("and", "min"), {"money":"medium"}),
-    Rule({"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"})
-]
-rulebase = Rulebase(rules)
-# Test your implementation of calculate_firing_strengths()
-# Enter your answers in the Google form to check them, round to two decimals
-datapoint = {"income":500, "quality":3}
-#print(rulebase.get_fs(datapoint, inputs))
-datapoint = {"income":234, "quality":7.5}
-#print(rulebase.get_fs(datapoint, inputs))
+    rule2 = Rule(
+        {"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"}
+    )
+    #print(rule2.get_fs({"income":100, "quality":8}, inputs))
+    #print(rule2.get_fs({"income":700, "quality":3}, inputs))
 
 
-# TODO
-print("[!] Further testing needs to be done by comparing results to MATLAB")
-print("    and using different membership functions and rule operations.")
-###############################################################################
+    # RULEBASE
+    # Add the rules listed in the question description
+    # Your code here
+    rules = [
+        Rule({"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
+        Rule({"income":"medium", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
+        Rule({"income":"high", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
+        Rule({"income":"low", "quality":"okay"}, ("and", "min"), {"money":"low"}),
+        Rule({"income":"medium", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
+        Rule({"income":"high", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
+        Rule({"income":"low", "quality":"bad"}, ("and", "min"), {"money":"low"}),
+        Rule({"income":"medium", "quality":"bad"}, ("and", "min"), {"money":"medium"}),
+        Rule({"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"})
+    ]
+    rulebase = Rulebase(rules)
+    # Test your implementation of calculate_firing_strengths()
+    # Enter your answers in the Google form to check them, round to two decimals
+    datapoint = {"income":500, "quality":3}
+    print(rulebase.get_fs(datapoint, inputs))
+    datapoint = {"income":234, "quality":7.5}
+    print(rulebase.get_fs(datapoint, inputs))
 
+
+    # TODO
+    # print("[!] Further testing needs to be done by comparing results to MATLAB")
+    # print("    and using different membership functions and rule operations.")
+
+    ###############################################################################
