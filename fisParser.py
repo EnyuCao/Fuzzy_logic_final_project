@@ -12,15 +12,30 @@ def parseMF(line):
     # l[2] = mf type
     # l[3] = mf args
 
-    line = line.replace("'", '').replace(':', '=').replace(',', '=')
-    line = line.split('=')
-    args = line[3].strip().replace('[', '').replace(']', '').split(' ')
+    l = line.replace("'", '').replace(':', '=').replace(',', '=')
+    l = l.split('=')
+    args = l[3].strip().replace('[', '').replace(']', '').split(' ')
 
-    if line[2] == 'trimf':
-        mf = TriangularMF(line[1], int(args[0]), int(args[1]), int(args[2]))
+    if l[2] == 'trimf':
+        mf = TriangularMF(l[1], int(args[0]), int(args[1]), int(args[2]))
 
-    if line[2] == 'tramf':
-        mf = TrapezoidalMF(line[1], int(args[0]), int(args[1]), int(args[2]), int(args[3]))
+    elif l[2] == 'tramf':
+        mf = TrapezoidalMF(l[1], int(args[0]), int(args[1]), int(args[2]), int(args[3]))
+
+    elif l[2] == 'gaumf':
+        mf = GaussianMF(l[1], int(args[0]), int(args[1]))
+
+    elif l[2] == 'belmf':
+        mf = GaussianMF(l[1], int(args[0]), int(args[1]), int(args[2]))
+
+    elif l[2] == 'sigmf':
+        mf = GaussianMF(l[1], int(args[0]), int(args[1]))
+
+    else:
+        print("Error:")
+        print("Membership function not recognise in line:")
+        print(line)
+        sys.exit(0)
 
     return mf
 
