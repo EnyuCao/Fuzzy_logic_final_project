@@ -7,6 +7,12 @@ done = False
 screenWidth = 600
 screenHeight = 500
 
+def rotate2D(M, phi):
+    R = np.array([
+        [np.cos(phi),-np.sin(phi)],
+        [np.sin(phi),np.cos(phi)]]
+    )
+    return M.dot(R)
 
 # This function is copied from:
 # http://www.nerdparadise.com/programming/pygame/part4
@@ -92,6 +98,9 @@ class Player(Unit):
         self.size = size
         self.fl = fl
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
+        # TODO for testing
+        self.tmp = False
+        self.drawline = None
 
     #TODO: read out raytrace in specific directions
 
@@ -108,9 +117,16 @@ class Player(Unit):
                 self.dx = -np.sin(self.phi)
                 self.dy = -np.cos(self.phi)
             if keys[pygame.K_LEFT]:
-                self.phi += np.pi*self.rspeed/180.
+                self.phi = (self.phi + np.pi*self.rspeed/180.) % (2 * np.pi)
             if keys[pygame.K_RIGHT]:
-                self.phi -= np.pi*self.rspeed/180.
+                self.phi = (self.phi - np.pi*self.rspeed/180.) % (2 * np.pi)
+            # TODO remove later
+            if keys[pygame.K_SPACE]:
+                self.tmp = True
+            if keys[pygame.K_LCTRL]:
+                self.phi = 0
+            if keys[pygame.K_LALT]:
+                self.phi = (self.phi+.5*np.pi)%(2*np.pi)
 
     def update(self, objects):
 
@@ -122,8 +138,8 @@ class Player(Unit):
         nx = self.x + self.dx * self.speed
         ny = self.y + self.dy * self.speed
 
-        # TODO Does not take into account the rotation of the player,
-        # TODO also there are no rotated objects yet
+        # TODO? Does not take into account the rotation of the player,
+            # also there are no rotated objects yet
         nRect = pygame.Rect(nx, ny, self.size, self.size)
         for obj in objects:
             if (obj.checkCollsion_rect(nRect)):
@@ -135,15 +151,66 @@ class Player(Unit):
 
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
+        # TODO remove later
+        if self.tmp:
+            print("Distance:", self.get_distance(objects, 0/180.*np.pi))
+            self.tmp = False
+
     def draw(self, screen):
+        #TODO remove later
+        if self.drawline:
+            pygame.draw.line(screen,(255,0,0),self.drawline[0],self.drawline[1])
         R = np.array([
             [np.cos(self.phi),-np.sin(self.phi)],
             [np.sin(self.phi),np.cos(self.phi)]]
         )
-        coords_O = np.array([[-1,-1],[-1,1],[1,1],[1,-1]])
+        shift = 0.5 * self.size
+        coords_O = np.array([[-1,-1],[-1,1],[1,1],[1,-1]]) * shift
         coords_O_R = coords_O.dot(R)
-        coords = (coords_O_R + 1)* 0.5*self.size + np.array([self.x,self.y])
+        coords = (coords_O_R + shift) + np.array([self.x,self.y])
         pygame.draw.polygon(screen, self.color, coords)
+
+    def get_distance(self, objects, phi):
+        x_pos, y_pos = self.x + 0.5 * self.size , self.y + 0.5 * self.size
+        phi = (self.phi + phi) % (2 * np.pi)
+        # Create bitmap of environment
+        global screenWidth, screenHeight
+        grid = np.zeros((screenHeight+2, screenWidth+2))
+        grid[[0,-1],:] = 1
+        grid[:,[0,-1]] = 1
+        for obj in objects:
+            x, y = np.meshgrid(range(obj.width), range(obj.height))
+            grid[y.ravel()+obj.y+1,x.ravel()+obj.x+1] = 1
+        # Determine formula to do raytracing
+        x_sign = 1 if phi < np.pi else -1
+        y_sign = 1 if phi < .75*np.pi or phi >= 1.75*np.pi else -1
+        phi_sign = 1 if phi%np.pi < .25*np.pi else -1
+        # Angle with x-axis is smallest
+        if abs(phi % np.pi - .5*np.pi) < .25*np.pi:
+            y = lambda x: x*np.tan(phi_sign*phi+.5*np.pi)
+            get_pos_O = lambda i: (y_sign*y(i), x_sign*i)
+        # Angle with y-axis is smallest
+        else:
+            x = lambda y: y*np.tan(phi_sign*phi)
+            get_pos_O = lambda i: (y_sign*i, x_sign*x(i))
+        # Determine first pixel of nearest object
+        i = 0
+        while 1:
+            y_pos_O, x_pos_O = get_pos_O(i)
+            if grid[int(1+y_pos+y_pos_O), int(1+x_pos+x_pos_O)] == 1:
+                break
+            i += 1
+        # TODO remove later
+        self.drawline = [(x_pos,y_pos),(x_pos+x_pos_O,y_pos+y_pos_O)]
+        # Determine distance to object, adjust for size of player.
+        if (abs(np.array([y_pos_O, x_pos_O])) < .5 * self.size + 1).all():
+            return 0
+        else:
+            return np.linalg.norm(
+                np.array([y_pos_O, x_pos_O])
+                - np.array([1, -1]) * (.5 * self.size + 1)
+                * rotate2D(np.array([1, 0]), phi)
+            )
 
 
 class Obstacle_rect(Unit):
@@ -182,10 +249,10 @@ class Simulation():
     def __init__(self):
         # Add obstaceels here in form (x, y, size)
         # Chose x, y and size to be multiples of 20 to allign with background
-        rect_Objs = [(240, 240, 80), (100, 100, 40), (400, 400, 60), 
-                     (60, 400, 40), (400, 60, 80)]
-        for x, y, size in rect_Objs:
-            self.units.append(Obstacle_rect(x, y, size))
+        rect_Objs = [(240, 240, 8,6), (100, 100, 40, 40), (400, 400, 60, 60), 
+                     (60, 400, 40, 40), (400, 60, 80, 80)]
+        for x, y, w, h in rect_Objs:
+            self.units.append(Obstacle_rect(x, y, w, h))
 
     def handleInput(self, event, keys):
 
