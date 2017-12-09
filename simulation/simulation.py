@@ -146,8 +146,8 @@ class Player(Unit):
                 collision = True
 
         if (not collision):
-            self.x = nx
-            self.y = ny
+            self.x = max(0, min(nx, screenWidth - self.size))
+            self.y = max(0, min(ny, screenHeight - self.size))
 
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
@@ -155,6 +155,10 @@ class Player(Unit):
         if self.tmp:
             print("Distance:", self.get_distance(objects, 0/180.*np.pi))
             self.tmp = False
+
+    def checkCollsion_rect(self, rect):
+        """ Checks for collsion with the given rect """
+        return self.rect.colliderect(rect)
 
     def draw(self, screen):
         #TODO remove later
@@ -215,11 +219,16 @@ class Player(Unit):
 
 class Obstacle_rect(Unit):
     color = (0, 0, 0)
+    dTime = 1
 
-    def __init__(self, x, y, width, height=None):
+    def __init__(self, x, y, width, height=None, speed=1, dChangeTime=60):
         self.x = x
         self.y = y
         self.width = width
+        self.speed = speed
+
+        # Checks when to pick a new direction for the obstacle
+        self.dChangeTime = dChangeTime
 
         if(height is None):
             self.height = width
@@ -229,13 +238,36 @@ class Obstacle_rect(Unit):
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def checkCollsion_rect(self, rect):
+        """ Checks for collsion with the given rect """
         return self.rect.colliderect(rect)
 
     def handleInput(self, keys):
         pass
 
-    def update(self):
-        pass
+    def update(self, objects):
+        # if speed is 0 no update is needed
+        if (self.speed == 0): return
+        self.dTime -= 1
+
+        if (self.dTime == 0): 
+            d = np.array([np.random.rand() - .5, np.random.rand() - .5])
+            self.d = (d * self.speed) / np.linalg.norm(d)
+            self.dTime = self.dChangeTime
+
+        collision = False
+        nx = self.x + self.d[0]
+        ny = self.y + self.d[1]
+
+        nRect = pygame.Rect(nx, ny, self.width, self.height)
+        for obj in objects:
+            if (obj.checkCollsion_rect(nRect)):
+                collision = True
+
+        if (not collision):
+            self.x = max(0, min(nx, screenWidth - self.width))
+            self.y = max(0, min(ny, screenHeight - self.height))
+
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
@@ -249,21 +281,22 @@ class Simulation():
     def __init__(self):
         # Add obstaceels here in form (x, y, size)
         # Chose x, y and size to be multiples of 20 to allign with background
-        rect_Objs = [(240, 240, 8,6), (100, 100, 40, 40), (400, 400, 60, 60), 
+        rect_Objs = [(240, 240, 8,6), (100, 100, 40, 40), (400, 400, 60, 60),
                      (60, 400, 40, 40), (400, 60, 80, 80)]
         for x, y, w, h in rect_Objs:
             self.units.append(Obstacle_rect(x, y, w, h))
 
     def handleInput(self, event, keys):
-
         self.player.handleInput(keys)
         for unit in self.units:
             unit.handleInput(keys)
 
     def update(self):
         self.player.update(self.units)
-        for unit in self.units:
-            unit.update()
+        for i, unit in enumerate(self.units):
+            objects = [unit for j, unit in enumerate(self.units) if i != j]
+            objects.append(self.player)
+            unit.update(objects)
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
