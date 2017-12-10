@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import pygame
 import numpy as np
+from flsMovement import calcDir
 
 pygame.init()
 done = False
@@ -22,7 +23,7 @@ def create_background():
     height = screenHeight
     colors = [(255, 255, 255), (212, 212, 212)]
     background = pygame.Surface((width, height))
-    tile_width = 20
+    tile_width = 21
     y = 0
     while y < height:
         x = 0
@@ -131,8 +132,14 @@ class Player(Unit):
     def update(self, objects):
 
         if self.fl:
-            # Handle fuzzy logic system here
-            pass
+            df = self.get_distance(objects, 0)
+            db = self.get_distance(objects, .5 * np.pi)
+            dl = self.get_distance(objects, np.pi)
+            dr = self.get_distance(objects, 1.5 * 90)
+
+            self.phi = calcDir(dl, dr, df, db, self.phi)
+            self.dx = np.sin(self.phi)
+            self.dy = np.cos(self.phi)
 
         collision = False
         nx = self.x + self.dx * self.speed
@@ -274,7 +281,7 @@ class Obstacle_rect(Unit):
 
 
 class Simulation():
-    player = Player(20, 460, 20, 2)
+    player = Player(20, 460, 20, 2, fl=False)
     units = []
     background = create_background()
 

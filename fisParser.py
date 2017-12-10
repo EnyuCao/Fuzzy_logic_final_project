@@ -199,8 +199,9 @@ def parseFisFile(filename):
     sysDict = parseSystem(f)
     inputs, outputs = parseInOutput(f)
     rules = parseRules(f, inputs, outputs, sysDict['and'], sysDict['or'])
+    rulebase = Rulebase(rules)
 
-    return sysDict, inputs, outputs, rules
+    return sysDict, inputs, outputs, rulebase
 
 
 if __name__ == "__main__":
@@ -208,9 +209,8 @@ if __name__ == "__main__":
         print("Give fis file as argument")
         sys.exit(0)
 
-    sysDict, inputs, outputs, rules = parseFisFile(sys.argv[1])
+    sysDict, inputs, outputs, rulebase = parseFisFile(sys.argv[1])
 
-    rulebase = Rulebase(rules)
     datapoint = {"income": 500, "quality": 3}
     print(rulebase.get_fs(datapoint, inputs))
     datapoint = {"income": 234, "quality": 7.5}
