@@ -1,0 +1,58 @@
+[System]
+Name='side-V0_1'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=16
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='Distance-left'
+Range=[0 100]
+NumMFs=4
+MF1='very-near':'trimf',[-33.33 0 33.33]
+MF2='near':'trimf',[0 33.33 66.67]
+MF3='far':'trimf',[33.33 66.67 100]
+MF4='very-far':'trapmf',[70 100 800 800]
+
+[Input2]
+Name='Distance-right'
+Range=[0 100]
+NumMFs=4
+MF1='very-near':'trimf',[-33.33 0 33.33]
+MF2='near':'trimf',[0 33.33 66.67]
+MF3='far':'trimf',[33.33 66.67 100]
+MF4='very-far':'trapmf',[70 100 800 800]
+
+[Output1]
+Name='sideways-movement'
+Range=[-1 1]
+NumMFs=5
+MF1='Hard-left':'trimf',[-1.5 -1 -0.5]
+MF2='Left':'trimf',[-1 -0.5 0]
+MF3='none':'trimf',[-0.5 0 0.5]
+MF4='Right':'trimf',[0 0.5 1]
+MF5='Hard-right':'trimf',[0.5 1 1.5]
+
+[Rules]
+1 1, 3 (1) : 1
+1 2, 4 (1) : 1
+1 3, 5 (1) : 1
+1 4, 5 (1) : 1
+2 1, 2 (1) : 1
+2 2, 3 (1) : 1
+2 3, 4 (1) : 1
+2 4, 5 (1) : 1
+3 1, 1 (1) : 1
+3 2, 2 (1) : 1
+3 3, 3 (1) : 1
+3 3, 3 (1) : 1
+4 1, 1 (1) : 1
+4 2, 1 (1) : 1
+4 3, 3 (1) : 1
+4 4, 3 (1) : 1

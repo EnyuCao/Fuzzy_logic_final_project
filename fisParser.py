@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import sys
 import os.path
-from FLS import TriangularMF, TrapezoidalMF, GaussianMF, BellShapedMF, SigmoidalMF
-from FLS import Variable, Input, Output, Rule, Rulebase
+from FLS import TriangularMF, TrapezoidalMF, GaussianMF, BellShapedMF
+from FLS import SigmoidalMF, Input, Output, Rule, Rulebase
 import re
 
 
@@ -22,7 +22,8 @@ def parseMF(line):
 
     # trapmf = TrapezoidalMF
     elif l[2] == 'trapmf':
-        mf = TrapezoidalMF(l[1], int(args[0]), int(args[1]), int(args[2]), int(args[3]))
+        mf = TrapezoidalMF(l[1], int(args[0]), int(args[1]),
+                           int(args[2]), int(args[3]))
 
     # gaumf = GaussianMF
     elif l[2] == 'gaumf':
@@ -93,7 +94,7 @@ def parseRule(l, inputs, outputs, andMeth, orMeth):
     l = l.replace(',', '').replace('(', '').replace(')', '').replace(':', '')
     l = l.replace('  ', ' ').split(' ')
 
-    #TODO implement not if needed
+    # TODO implement not if needed
     inDict = {}
     outDict = {}
     # Input of rules
@@ -133,6 +134,7 @@ def parseRules(f, inputs, outputs, andMeth, orMeth):
             rules.append(parseRule(l, inputs, outputs, andMeth, orMeth))
 
     return rules
+
 
 def parseSetting(l, sysDict):
     """ Adds the setting in the line to the sysDict """
@@ -179,8 +181,9 @@ def parseSystem(f):
 
     return sysDict
 
+
 def parseFisFile(filename):
-    """ 
+    """
     returns inputs outputs rules and setting dict
     taken from the given .fis filename
     """
@@ -208,9 +211,7 @@ if __name__ == "__main__":
     sysDict, inputs, outputs, rules = parseFisFile(sys.argv[1])
 
     rulebase = Rulebase(rules)
-    # Test your implementation of calculate_firing_strengths()
-    # Enter your answers in the Google form to check them, round to two decimals
-    datapoint = {"income":500, "quality":3}
+    datapoint = {"income": 500, "quality": 3}
     print(rulebase.get_fs(datapoint, inputs))
-    datapoint = {"income":234, "quality":7.5}
+    datapoint = {"income": 234, "quality": 7.5}
     print(rulebase.get_fs(datapoint, inputs))
