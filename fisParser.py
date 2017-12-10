@@ -16,20 +16,25 @@ def parseMF(line):
     l = l.split('=')
     args = l[3].strip().replace('[', '').replace(']', '').split(' ')
 
+    # trimf = TriangularMF
     if l[2] == 'trimf':
         mf = TriangularMF(l[1], int(args[0]), int(args[1]), int(args[2]))
 
-    elif l[2] == 'tramf':
+    # trapmf = TrapezoidalMF
+    elif l[2] == 'trapmf':
         mf = TrapezoidalMF(l[1], int(args[0]), int(args[1]), int(args[2]), int(args[3]))
 
+    # gaumf = GaussianMF
     elif l[2] == 'gaumf':
         mf = GaussianMF(l[1], int(args[0]), int(args[1]))
 
+    # belmlf = BellShapedMF
     elif l[2] == 'belmf':
-        mf = GaussianMF(l[1], int(args[0]), int(args[1]), int(args[2]))
+        mf = BellShapedMF(l[1], int(args[0]), int(args[1]), int(args[2]))
 
+    # sigmf = SigmoidalMF
     elif l[2] == 'sigmf':
-        mf = GaussianMF(l[1], int(args[0]), int(args[1]))
+        mf = SigmoidalMF(l[1], int(args[0]), int(args[1]))
 
     else:
         print("Error:")
@@ -83,12 +88,102 @@ def parseInOutput(f):
     return inputs, outputs
 
 
-if __name__ == "__main__":
-    if (len(sys.argv) != 2):
-        print("Give fis file as argument")
+def parseRule(l, inputs, outputs, andMeth, orMeth):
+    """Returns a rule based on the given line and args"""
+    l = l.replace(',', '').replace('(', '').replace(')', '').replace(':', '')
+    l = l.replace('  ', ' ').split(' ')
+
+    #TODO implement not if needed
+    inDict = {}
+    outDict = {}
+    # Input of rules
+    for i, x in enumerate(l[:len(inputs)]):
+        inVar = inputs[i]
+        inDict[inVar.name] = inVar.mfs[int(x) - 1].name
+
+    # Output of rules
+    for i, x in enumerate(l[len(inputs):len(inputs) + len(outputs)]):
+        outVar = outputs[i]
+        outDict[outVar.name] = outVar.mfs[int(x) - 1].name
+
+    # 1 is and
+    # 2 is or
+    if (l[-1] == '1'):
+        operation = ('and', andMeth)
+    elif (l[-1] == '2'):
+        operation = ('or', orMeth)
+    else:
+        print("suported operation type:")
+        print("1 = 'and', 2 = 'or'")
+        print("%s not supported" % l[-1])
         sys.exit(0)
 
-    filename = sys.argv[1]
+    return Rule(inDict, operation, outDict)
+
+
+def parseRules(f, inputs, outputs, andMeth, orMeth):
+    """ Returns a list of rules based on the given params """
+    f = f.split('\n\n')
+    rulePat = r'\[Rules\]'
+
+    rules = []
+    for block in [b for b in f if re.match(rulePat, b)]:
+        lines = block.split('\n')
+        for l in lines[1:-1]:
+            rules.append(parseRule(l, inputs, outputs, andMeth, orMeth))
+
+    return rules
+
+def parseSetting(l, sysDict):
+    """ Adds the setting in the line to the sysDict """
+
+    setting = ""
+    # and
+    if re.match(r'AndMethod(.)*', l):
+        val = l.replace("'", '').split('=')[-1]
+        setting = ('and', val)
+
+    # or
+    elif re.match(r'OrMethod(.)*', l):
+        val = l.replace("'", '').split('=')[-1]
+        setting = ('or', val)
+
+    # imp
+    elif re.match(r'ImpMethod(.)*', l):
+        val = l.replace("'", '').split('=')[-1]
+        setting = ('imp', val)
+
+    # aggregation
+    elif re.match(r'AggMethod(.)*', l):
+        val = l.replace("'", '').split('=')[-1]
+        setting = ('agg', val)
+
+    # defuzz
+    elif re.match(r'DefuzzMethod(.)*', l):
+        val = l.replace("'", '').split('=')[-1]
+        setting = ('defuzz', val)
+
+    if setting != "":
+        sysDict[setting[0]] = setting[1]
+
+
+def parseSystem(f):
+    """ Returns a dict with the system settings """
+    f = f.split('\n\n')
+    sysPat = r'\[System\]'
+
+    sysDict = {}
+    for block in [b for b in f if re.match(sysPat, b)]:
+        for l in block.split('\n'):
+            parseSetting(l, sysDict)
+
+    return sysDict
+
+def parseFisFile(filename):
+    """ 
+    returns inputs outputs rules and setting dict
+    taken from the given .fis filename
+    """
 
     try:
         os.path.isfile(filename)
@@ -98,19 +193,20 @@ if __name__ == "__main__":
 
     f = open(filename).read()
 
+    sysDict = parseSystem(f)
     inputs, outputs = parseInOutput(f)
+    rules = parseRules(f, inputs, outputs, sysDict['and'], sysDict['or'])
 
-    rules = [
-        Rule({"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"medium", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"high", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"low", "quality":"okay"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"medium", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
-        Rule({"income":"high", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
-        Rule({"income":"low", "quality":"bad"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"medium", "quality":"bad"}, ("and", "min"), {"money":"medium"}),
-        Rule({"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"})
-    ]
+    return sysDict, inputs, outputs, rules
+
+
+if __name__ == "__main__":
+    if (len(sys.argv) != 2):
+        print("Give fis file as argument")
+        sys.exit(0)
+
+    sysDict, inputs, outputs, rules = parseFisFile(sys.argv[1])
+
     rulebase = Rulebase(rules)
     # Test your implementation of calculate_firing_strengths()
     # Enter your answers in the Google form to check them, round to two decimals
