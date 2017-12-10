@@ -87,7 +87,6 @@ class Variable:
         self.mfs = mfs
 
     def membership(self, x):
-        assert x > self.r[0] and x < self.r[1], 'Value out of range'
         return {mf.name: mf.membership(x) for mf in self.mfs}
 
     def get_mf(self, name):
@@ -169,6 +168,75 @@ class Rulebase:
 ###############################################################################
 
 # Reasoner ####################################################################
+# TODO needs huge overhaul to support different types of
+    # inference, aggregation and defuzzification
+# TODO also, breaks for anything but TriangularMFs
+# TODO maybe make variable names shorter/more appropriate
+
+class Reasoner:
+    def __init__(self, rulebase, inputs, outputs, n_points, defuzzification):
+        self.rulebase = rulebase
+        self.inputs = inputs
+        self.outputs = outputs
+        self.discretize = n_points
+        self.defuzzification = defuzzification.upper()
+
+    def inference(self, x_dict):
+        # 1. Calculate the highest firing strength found in the rules per 
+        # membership function of the output variable
+        # looks like: {"low":0.5, "medium":0.25, "high":0}
+        fs_dict = self.rulebase.get_fs(x_dict, self.inputs)
+
+        # 2. Aggragate and discretize
+        # looks like: [(0.0, 1), (1.2437810945273631, 1), (2.4875621890547261, 1), (3.7313432835820892, 1), ...]
+        input_value_pairs = self.aggregate(fs_dict)
+
+        # 3. Defuzzify
+        # looks like a scalar
+        crisp_outputs = self.defuzzify(input_value_pairs)
+        return crisp_outputs
+
+    # TODO support more types of aggregation
+    def aggregate(self, fs_dict):
+        # First find where the aggrageted area starts and ends
+        # Your code here
+        input_value_pairs = {}
+        for output in self.outputs:
+            end, start = output.r
+            for mf_name in fs_dict[output.name].keys():
+                mf = output.get_mf(mf_name)
+                # TODO only supports TriangularMFs
+                start = mf.a if mf.a < start else start
+                end = mf.c if mf.c > end else end
+            # Second discretize this area and aggragate
+            cur_input_value_pairs = []
+            for x in np.arange(
+                start, end, (end - start)/float(self.discretize)
+            ):
+                memberships = output.membership(x)
+                values_at_x = []
+                for (mf_name, fs) in fs_dict[output.name].items():
+                    values_at_x.append(min(memberships[mf_name], fs))
+                cur_input_value_pairs.append((x, max(values_at_x)))
+            input_value_pairs[output.name] = cur_input_value_pairs
+        return input_value_pairs
+
+    # TODO support more types of defuzzification
+    def defuzzify(self, input_value_pairs):
+        crisp_values = {}
+        for (output_name, cur_input_value_pairs) in input_value_pairs.items():
+            crisp_value = 0
+            input_values = [pairs[1] for pairs in cur_input_value_pairs]
+            if self.defuzzification == "SOM":
+                crisp_value = cur_input_value_pairs[
+                    input_values.index(max(input_values))
+                ][0]
+            elif self.defuzzification == "LOM":
+                crisp_value = cur_input_value_pairs[
+                    -input_values[::-1].index(max(input_values)) - 1
+                ][0]
+            crisp_values[output_name] = crisp_value
+        return crisp_values
 
 ###############################################################################
 
@@ -228,11 +296,11 @@ if __name__ == "__main__":
     money = Output("money", (0, 500), mfs_money)
 
     inputs = [income, quality]
-    output = money
+    outputs = [money]
 
     #print(income.membership(489))
     #print(quality.membership(6))
-    #print(output.membership(222))
+    #print(money.membership(222))
 
     # plot_var(income)
     # plot_var(quality)
@@ -269,9 +337,38 @@ if __name__ == "__main__":
     # Test your implementation of calculate_firing_strengths()
     # Enter your answers in the Google form to check them, round to two decimals
     datapoint = {"income":500, "quality":3}
-    print(rulebase.get_fs(datapoint, inputs))
+    #print(rulebase.get_fs(datapoint, inputs))
     datapoint = {"income":234, "quality":7.5}
-    print(rulebase.get_fs(datapoint, inputs))
+    #print(rulebase.get_fs(datapoint, inputs))
+
+
+    # REASONER
+    # Test your implementation of the fuzzy inference
+    # Enter your answers in the Google form to check them, round to two decimals
+
+    thinker = Reasoner(rulebase, inputs, outputs, 201, "som")
+    datapoint = {"income":100, "quality":1}
+    print(thinker.inference(datapoint))
+
+    thinker = Reasoner(rulebase, inputs, outputs, 101, "som")
+    datapoint = {"income":550, "quality":4.5}
+    print(thinker.inference(datapoint))
+
+    thinker = Reasoner(rulebase, inputs, outputs, 201, "som")
+    datapoint = {"income":900, "quality":6.5}
+    print(thinker.inference(datapoint))
+
+    thinker = Reasoner(rulebase, inputs, outputs, 201, "lom")
+    datapoint = {"income":100, "quality":1}
+    print(thinker.inference(datapoint))
+
+    thinker = Reasoner(rulebase, inputs, outputs, 101, "lom")
+    datapoint = {"income":550, "quality":4.5}
+    print(thinker.inference(datapoint))
+
+    thinker = Reasoner(rulebase, inputs, outputs, 201, "lom")
+    datapoint = {"income":900, "quality":6.5}
+    print(thinker.inference(datapoint))
 
 
     # TODO
