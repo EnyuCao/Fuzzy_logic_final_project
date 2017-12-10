@@ -9,36 +9,36 @@ from collections import Counter
 class TriangularMF:
     def __init__(self, name, a, b, c):
         self.name = name
-        self.a = a
-        self.b = b
-        self.c = c
+        self.start = a
+        self.top = b
+        self.end = c
 
     def membership(self, x):
-        if x < self.a or x > self.c:
+        if x < self.start or x > self.end:
             return 0
-        elif x < self.b:
-            return (x - self.a) / float(self.b - self.a)
-        elif self.b == self.c:
+        elif x < self.top:
+            return (x - self.start) / float(self.top - self.start)
+        elif self.top == self.end:
             return 1
         else:
-            return (self.c - x) / float(self.c - self.b)
+            return (self.end - x) / float(self.end - self.top)
 
 
 class TrapezoidalMF:
     def __init__(self, name, a, b, c, d):
         self.name = name
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
+        self.start = a
+        self.topl = b
+        self.topr = c
+        self.end = d
 
     def membership(self, x):
-        if x < self.a or x > self.d:
+        if x < self.start or x > self.end:
             return 0
-        elif x < self.b:
-            return (x - self.a) / float(self.b - self.a)
-        elif x > self.c:
-            return (self.d - x) / float(self.d - self.c)
+        elif x < self.topl:
+            return (x - self.start) / float(self.topl - self.start)
+        elif x > self.topr:
+            return (self.end - x) / float(self.end - self.topr)
         else:
             return 1
 
@@ -170,7 +170,7 @@ class Rulebase:
 # Reasoner ####################################################################
 # TODO needs huge overhaul to support different types of
     # inference, aggregation and defuzzification
-# TODO also, breaks for anything but TriangularMFs
+# TODO also, breaks for anything but TriangularMFs and TrapezoidalMFs
 # TODO maybe make variable names shorter/more appropriate
 
 class Reasoner:
@@ -205,9 +205,9 @@ class Reasoner:
             end, start = output.r
             for mf_name in fs_dict[output.name].keys():
                 mf = output.get_mf(mf_name)
-                # TODO only supports TriangularMFs
-                start = mf.a if mf.a < start else start
-                end = mf.c if mf.c > end else end
+                # TODO only supports TriangularMFs and TrapezoidalMFs
+                start = mf.start if mf.start < start else start
+                end = mf.end if mf.end > end else end
             # Second discretize this area and aggragate
             cur_input_value_pairs = []
             for x in np.arange(
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     #print(quality.membership(6))
     #print(money.membership(222))
 
-    # plot_var(income)
+    plot_var(income)
     # plot_var(quality)
     # plot_var(money)
 
