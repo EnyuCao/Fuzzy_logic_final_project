@@ -87,6 +87,12 @@ class Variable:
         self.mfs = mfs
 
     def membership(self, x):
+        # TODO
+#        assert x >= self.r[0] and x <= self.r[1], "Value out of range"
+        if not (x >= self.r[0] and x <= self.r[1]):
+            print('[WARNING] Value out of range')
+            print('\t[TODO] cap variables in flsMovement.calcDir')
+            print('\t       and reinstate assert/exception')
         return {mf.name: mf.membership(x) for mf in self.mfs}
 
     def get_mf(self, name):
@@ -202,6 +208,10 @@ class Reasoner:
         # Your code here
         input_value_pairs = {}
         for output in self.outputs:
+            # Check whether any rules fired, else pass equivalent of 0
+            if not len(fs_dict[output.name]):
+                input_value_pairs[output.name] = [(0.,0.)]
+                continue
             end, start = output.r
             for mf_name in fs_dict[output.name].keys():
                 mf = output.get_mf(mf_name)
@@ -241,7 +251,7 @@ class Reasoner:
 ###############################################################################
 
 # Tests #######################################################################
-
+# TODO to be removed at some point
 
 # not used anymore
 def pltMF(mf, p, q):
@@ -294,9 +304,10 @@ if __name__ == "__main__":
         TrapezoidalMF("high", 250, 400, 500, 500)
     ]
     money = Output("money", (0, 500), mfs_money)
+    money2 = Output("money2", (0, 500), mfs_money)
 
     inputs = [income, quality]
-    outputs = [money]
+    outputs = [money, money2]
 
     #print(income.membership(489))
     #print(quality.membership(6))
@@ -323,15 +334,15 @@ if __name__ == "__main__":
     # Add the rules listed in the question description
     # Your code here
     rules = [
-        Rule({"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"medium", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"high", "quality":"amazing"}, ("and", "min"), {"money":"low"}),
+        Rule({"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low", "money2":"low"}),
+        Rule({"income":"medium", "quality":"amazing"}, ("and", "min"), {"money":"low", "money2":"low"}),
+        Rule({"income":"high", "quality":"amazing"}, ("and", "min"), {"money":"low", "money2":"low"}),
         Rule({"income":"low", "quality":"okay"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"medium", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
-        Rule({"income":"high", "quality":"okay"}, ("and", "min"), {"money":"medium"}),
-        Rule({"income":"low", "quality":"bad"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"medium", "quality":"bad"}, ("and", "min"), {"money":"medium"}),
-        Rule({"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"})
+        Rule({"income":"medium", "quality":"okay"}, ("and", "min"), {"money":"medium", "money2":"low"}),
+        Rule({"income":"high", "quality":"okay"}, ("and", "min"), {"money":"medium", "money2":"low"}),
+        Rule({"income":"low", "quality":"bad"}, ("and", "min"), {"money":"low"}), # TODO note: has no money2 value
+        Rule({"income":"medium", "quality":"bad"}, ("and", "min"), {"money":"medium", "money2":"low"}),
+        Rule({"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high", "money2":"low"})
     ]
     rulebase = Rulebase(rules)
     # Test your implementation of calculate_firing_strengths()
@@ -376,3 +387,4 @@ if __name__ == "__main__":
     # print("    and using different membership functions and rule operations.")
 
     ###############################################################################
+

@@ -135,7 +135,7 @@ class Player(Unit):
             df = self.get_distance(objects, 0)
             db = self.get_distance(objects, .5 * np.pi)
             dl = self.get_distance(objects, np.pi)
-            dr = self.get_distance(objects, 1.5 * 90)
+            dr = self.get_distance(objects, 1.5 * np.pi)
 
             self.phi = calcDir(dl, dr, df, db, self.phi)
             self.dx = np.sin(self.phi)
