@@ -302,7 +302,7 @@ if __name__ == "__main__":
     #print(quality.membership(6))
     #print(money.membership(222))
 
-    plot_var(income)
+    # plot_var(income)
     # plot_var(quality)
     # plot_var(money)
 

@@ -183,8 +183,8 @@ class Player(Unit):
         grid[[0,-1],:] = 1
         grid[:,[0,-1]] = 1
         for obj in objects:
-            x, y = np.meshgrid(range(obj.width), range(obj.height))
-            grid[y.ravel()+obj.y+1,x.ravel()+obj.x+1] = 1
+            x, y = np.meshgrid(range(int(obj.width)), range(int(obj.height)))
+            grid[y.ravel()+int(obj.y)+1,x.ravel()+int(obj.x)+1] = 1
         # Determine formula to do raytracing
         x_sign = 1 if phi < np.pi else -1
         y_sign = 1 if phi < .75*np.pi or phi >= 1.75*np.pi else -1
