@@ -18,15 +18,15 @@ def angle_between(p1, p2):
 
 def calcDir(dl, dr, df, db, phi):
     forwFls = parseFisFile(fFis)
-    sideFls = parseFisFile(fFis)
+    sideFls = parseFisFile(sFis)
     forwFls = Reasoner(forwFls[3], forwFls[1], forwFls[2], 201, 'som')
     sideFls = Reasoner(sideFls[3], sideFls[1], sideFls[2], 201, 'som')
 
     inputForw = {'Distance-forward': df, 'Distance-backwards': db}
     inputSide = {'Distance-left': df, 'Distance-right': db}
 
-    fDir = forwFls.inference(inputForw)
-    sDir = sideFls.inference(inputSide)
+    fDir = list(forwFls.inference(inputForw).values())[0]
+    sDir = list(sideFls.inference(inputSide).values())[0]
 
     nDir = np.array([fDir, sDir])
     oDir = np.array([1, 0])

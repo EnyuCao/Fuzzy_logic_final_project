@@ -18,24 +18,24 @@ def parseMF(line):
 
     # trimf = TriangularMF
     if l[2] == 'trimf':
-        mf = TriangularMF(l[1], int(args[0]), int(args[1]), int(args[2]))
+        mf = TriangularMF(l[1], float(args[0]), float(args[1]), float(args[2]))
 
     # trapmf = TrapezoidalMF
     elif l[2] == 'trapmf':
-        mf = TrapezoidalMF(l[1], int(args[0]), int(args[1]),
-                           int(args[2]), int(args[3]))
+        mf = TrapezoidalMF(l[1], float(args[0]), float(args[1]),
+                           float(args[2]), float(args[3]))
 
     # gaumf = GaussianMF
     elif l[2] == 'gaumf':
-        mf = GaussianMF(l[1], int(args[0]), int(args[1]))
+        mf = GaussianMF(l[1], float(args[0]), float(args[1]))
 
     # belmlf = BellShapedMF
     elif l[2] == 'belmf':
-        mf = BellShapedMF(l[1], int(args[0]), int(args[1]), int(args[2]))
+        mf = BellShapedMF(l[1], float(args[0]), float(args[1]), float(args[2]))
 
     # sigmf = SigmoidalMF
     elif l[2] == 'sigmf':
-        mf = SigmoidalMF(l[1], int(args[0]), int(args[1]))
+        mf = SigmoidalMF(l[1], float(args[0]), float(args[1]))
 
     else:
         print("Error:")
@@ -56,6 +56,7 @@ def parseVar(block):
     name = [l for l in lines if re.match(namePattern, l)][0]
     name = name.replace("'", "").split("=")[1]
 
+    # Select range
     r = [l for l in lines if re.match(rangePattern, l)][0]
     r = r.replace("[", '').replace("]", '').split('=')[1].split(' ')
 
@@ -64,9 +65,9 @@ def parseVar(block):
         mfs.append(parseMF(l))
 
     if lines[0][1] == 'I':
-        return Input(name, (int(r[0]), int(r[1])), mfs)
+        return Input(name, (float(r[0]), float(r[1])), mfs)
     else:
-        return Output(name, (int(r[0]), int(r[1])), mfs)
+        return Output(name, (float(r[0]), float(r[1])), mfs)
 
 
 def parseInOutput(f):

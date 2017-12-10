@@ -281,7 +281,7 @@ class Obstacle_rect(Unit):
 
 
 class Simulation():
-    player = Player(20, 460, 20, 2, fl=False)
+    player = Player(20, 460, 20, 2, fl=True)
     units = []
     background = create_background()
 
