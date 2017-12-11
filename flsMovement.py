@@ -45,10 +45,8 @@ def calcDir(dl, dr, df, db, phi):
     return phi
 
 
-def calc_dphi(df, dl, dr):
+def create_player_fls(r_dist, r_phi):
     # create inputs
-    top_dist = 160
-    r_dist = np.arange(0,top_dist+.001*top_dist,top_dist/4.)
     mfs_dist = [
         FLS.TrapezoidalMF('low', r_dist[0],r_dist[0],r_dist[1],r_dist[2]),
         FLS.TriangularMF('medium', r_dist[1],r_dist[2],r_dist[3]),
@@ -59,8 +57,6 @@ def calc_dphi(df, dl, dr):
     distr = FLS.Input('distr', (r_dist[0], r_dist[-1]), mfs_dist)
     inputs = [distf, distl, distr]
     # create outputs
-    top_phi = .5*np.pi
-    r_phi = np.arange(0,top_phi+.001*top_phi,top_phi/4.)
     mfs_phi = [
         FLS.TrapezoidalMF('low', r_phi[0],r_phi[0],r_phi[1],r_phi[2]),
         FLS.TriangularMF('medium', r_phi[1],r_phi[2],r_phi[3]),
@@ -208,13 +204,7 @@ def calc_dphi(df, dl, dr):
         ),
     ]
     rulebase = FLS.Rulebase(rules)
-    # cap values and apply reasoner
-    df = min(df, r_dist[-1])
-    dl = min(dl, r_dist[-1])
-    dr = min(dr, r_dist[-1])
-    thinker = FLS.Reasoner(rulebase, inputs, outputs, 201, 'lom')
-    datapoint = {'distf':df, 'distl':dl, 'distr':dr}
-    result = thinker.inference(datapoint)
-    # return difference of angles
-    return result['phir'] - result['phil']
+    # create reasoner and return inference function
+    reasoner = FLS.Reasoner(rulebase, inputs, outputs, 201, 'lom')
+    return reasoner.inference
 

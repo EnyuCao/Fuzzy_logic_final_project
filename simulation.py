@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pygame
 import numpy as np
-from flsMovement import calcDir, calc_dphi
+from flsMovement import calcDir, create_player_fls
 
 pygame.init()
 done = False
@@ -90,14 +90,15 @@ class Player(Unit):
     dx = 0
     dy = 0
 
-    def __init__(self, x, y, size, speed, fl=False):
+    def __init__(self, x, y, size, speed, max_dist=0, fls=None):
         self.x = x
         self.y = y
         self.phi = np.pi
         self.rspeed = 5
         self.speed = speed
         self.size = size
-        self.fl = fl
+        self.max_dist = max_dist
+        self.fls = fls
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
         # TODO for testing
         self.tmp = False
@@ -108,7 +109,7 @@ class Player(Unit):
     #TODO: input function so our fuzzy system can interact with the simulation
 
     def handleInput(self, keys):
-        if (not self.fl):
+        if (not self.fls):
             self.dx = 0
             self.dy = 0
             if keys[pygame.K_UP]:
@@ -131,7 +132,7 @@ class Player(Unit):
 
     def update(self, objects):
 
-        if self.fl:
+        if self.fls:
             pass
 #            df = self.get_distance(objects, 0)
 #            db = self.get_distance(objects, .5 * np.pi)
@@ -139,10 +140,28 @@ class Player(Unit):
 #            dr = self.get_distance(objects, 1.5 * np.pi)
 #            self.phi = calcDir(dl, dr, df, db, self.phi)
 
-            df = self.get_distance(objects, 0)
-            dr = self.get_distance(objects, .35*np.pi)
-            dl = self.get_distance(objects, -.35*np.pi)
-            self.phi = (self.phi + calc_dphi(df, dl, dr)) % (2*np.pi)
+            df = min(
+#                self.get_distance(objects, 0),
+                self.get_distance(objects, .1*np.pi),
+                self.get_distance(objects, -.1*np.pi),
+                self.max_dist
+            )
+            dl = min(
+#                self.get_distance(objects, .35*np.pi),
+                self.get_distance(objects, .25*np.pi),
+                self.get_distance(objects, .45*np.pi),
+                self.max_dist
+            )
+            dr = min(
+#                self.get_distance(objects, -.35*np.pi),
+                self.get_distance(objects, -.25*np.pi),
+                self.get_distance(objects, -.45*np.pi),
+                self.max_dist
+            )
+            datapoint = {'distf':df, 'distl':dl, 'distr':dr}
+            phi_dict = self.fls(datapoint)
+            delta_phi = phi_dict['phil'] - phi_dict['phir']
+            self.phi = (self.phi + delta_phi) % (2*np.pi)
 
             self.dx = np.sin(self.phi)
             self.dy = np.cos(self.phi)
@@ -293,7 +312,10 @@ class Obstacle_rect(Unit):
 
 
 class Simulation():
-    player = Player(20, 460, 20, 2, fl=True)
+    dist_range = [0,5,25,70,100]
+    phi_range = np.array(range(5))*np.pi/32
+    fls = create_player_fls(dist_range, phi_range)
+    player = Player(20, 460, 20, 2, dist_range[-1], fls)
     units = []
     background = create_background()
 
