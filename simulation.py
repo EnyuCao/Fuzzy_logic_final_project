@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pygame
 import numpy as np
-from flsMovement import calcDir
+from flsMovement import calcDir, calc_dphi
 
 pygame.init()
 done = False
@@ -132,12 +132,18 @@ class Player(Unit):
     def update(self, objects):
 
         if self.fl:
-            df = self.get_distance(objects, 0)
-            db = self.get_distance(objects, .5 * np.pi)
-            dl = self.get_distance(objects, np.pi)
-            dr = self.get_distance(objects, 1.5 * np.pi)
+            pass
+#            df = self.get_distance(objects, 0)
+#            db = self.get_distance(objects, .5 * np.pi)
+#            dl = self.get_distance(objects, np.pi)
+#            dr = self.get_distance(objects, 1.5 * np.pi)
+#            self.phi = calcDir(dl, dr, df, db, self.phi)
 
-            self.phi = calcDir(dl, dr, df, db, self.phi)
+            df = self.get_distance(objects, 0)
+            dr = self.get_distance(objects, .35*np.pi)
+            dl = self.get_distance(objects, -.35*np.pi)
+            self.phi = (self.phi + calc_dphi(df, dl, dr)) % (2*np.pi)
+
             self.dx = np.sin(self.phi)
             self.dy = np.cos(self.phi)
 
