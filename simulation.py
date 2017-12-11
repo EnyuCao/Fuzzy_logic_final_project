@@ -279,6 +279,12 @@ class Obstacle_rect(Unit):
         if (not collision):
             self.x = max(0, min(nx, screenWidth - self.width))
             self.y = max(0, min(ny, screenHeight - self.height))
+        else:
+            tDeg = 45
+            cosT = np.cos(tDeg)
+            sinT = np.sin(tDeg)
+            self.d[0] = cosT * self.d[0] + -sinT * self.d[1]
+            self.d[1] = sinT * self.d[0] +  cosT * self.d[1]
 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
