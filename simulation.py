@@ -234,7 +234,7 @@ class Obstacle_rect(Unit):
     color = (0, 0, 0)
     dTime = 1
 
-    def __init__(self, x, y, width, height=None, speed=1, dChangeTime=60):
+    def __init__(self, x, y, width, height=None, speed=1.5, dChangeTime=30):
         self.x = x
         self.y = y
         self.width = width
@@ -294,8 +294,24 @@ class Simulation():
     def __init__(self):
         # Add obstaceels here in form (x, y, size)
         # Chose x, y and size to be multiples of 20 to allign with background
-        rect_Objs = [(240, 240, 8,6), (100, 100, 40, 40), (400, 400, 60, 60),
-                     (60, 400, 40, 40), (400, 60, 80, 80)]
+        # rect_Objs = [(240, 240, 8,6), (100, 100, 40, 40), (400, 400, 60, 60),
+                     # (60, 400, 40, 40), (400, 60, 80, 80)]
+
+        rect_Objs = [
+                (100, 100, 40, 40),
+                (100, 200, 40, 40),
+                (100, 400, 40, 40), 
+                (250, 250, 30, 30), 
+                (200, 200, 30, 30),
+                (200, 100, 30, 30),
+                (200, 300, 30, 30),
+                (200, 400, 30, 30),
+                (300,  50, 50, 50),
+                (300, 300, 50, 50),
+                (300, 400, 50, 50),
+                (400,  60, 80, 80),
+                (400, 200, 40, 40),
+                (400, 400, 60, 60)]
         for x, y, w, h in rect_Objs:
             self.units.append(Obstacle_rect(x, y, w, h))
 
