@@ -313,6 +313,7 @@
 \hyphenation{op-tical net-works semi-conduc-tor}
 
 
+\usepackage{graphicx}
 \begin{document}
 %
 % paper title
@@ -438,17 +439,37 @@ The distance from the robot to an object are determined by raycasting. For each 
 % TODO Link to repo?
 \subsection{Link to repository}
 % TODO remove underscores from directory and url
-\url{
-https://gitlab-fnwi.uva.nl/10989048/fuzzy_logic_final_project
-}
+\url{https://gitlab-fnwi.uva.nl/10989048/fuzzy_logic_final_project}
+\url{https://github.com/Yelvd/Fuzzy_logic_final_project}
 
 \section{Experiments and Results}
-We will conduct our experiments by running two kinds of series of simulations. Firstly we will measure the average amount of frames until a collision occurs, secondly the average amount of collisions over a number of frames. We will do these measurements for various MFs. (Triangular, trapezoidal, gaussian, bellshaped, sigmoidal)
+A starting situation was created for the simulation. This starting situation consisted of the robot in the corner at the bottom left and 14 square obstacles of varying sizes placed around the field, see figure~\ref{fig:start}.
 
-We have chosen to use frames as measurement of time since this allows us to speed up our simulations. The reason why we use two kinds of series of simulations is that we can get different kinds of information from them: From the first we only get to know what the average time (in frames) is between getting into a collision from a random starting position, but the second one tells us about the average amount of collisions in a given time period (in frames), meaning that we get to know more about the avergae time between collisions.
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[scale=0.3]{./figs/StartSetup.png}
+  \caption{starting situation for the simulation}
+  \label{fig:start}
+\end{figure}
+
+\noindent
+The obstacle move each in there own random direction, after 30 frames they pick a new random direction. When colliding with an other object or the wall the obstacle rotate there direction vector 45 degrees clockwise each frame until they can move again. A simulation terminates when the robot collides with an obstacle or the wall. The data that was collected is the length of a simulation in frames.
+Frames where chosen as measurement unit instead of time since this allows us to speed up our simulations by unlocking the number of frames per second, the data is also more reliable because it is changed if the computer the experiment is run on cannot keep up with the simulation.\\
+
+The following sets of speeds where chosen:
+\begin{itemize}
+  \item Player: 2 pixels/frame, Obstacle: 1 pixels/frame
+  \item Player: 2 pixels/frame, Obstacle: 2 pixels/frame
+  \item Player: 2 pixels/frame, Obstacle: 4 pixels/frame
+  \item Player: 6 pixels/frame, Obstacle: 6 pixels/frame
+\end{itemize}
+
+\noindent
+For each set of speeds two different types of terminate conditions where used. The first one being that the simulation terminates if the player makes a move that result in a collision with either an obstacle or the wall, on the other test the simulation terminated when the player collided with an obstacle or wall or when an obstacle made a move that resulted in a collision. For each set of speeds both termination conditions where run 20 times. The average frames until termination is reported below.
+
+\subsection{Results}
 
 \section{Discussion}
-The discussion goes here (to be done later).
 
 %TODO
 %\section{Conclusions and Future Work}
