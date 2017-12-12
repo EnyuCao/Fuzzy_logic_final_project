@@ -468,8 +468,8 @@ The following sets of speeds where chosen:
 For each set of speeds two different types of terminate conditions where used. The first one being that the simulation terminates if the player makes a move that result in a collision with either an obstacle or the wall, on the other test the simulation terminated when the player collided with an obstacle or wall or when an obstacle made a move that resulted in a collision. For each set of speeds both termination conditions where run 20 times. The average frames until termination is reported below.
 
 \subsection{Results}
-Obstaclecollision T (2, 1: 1472.4) (2,2: 496.5) (2,4: 152.55) (6,6:75.25)
-Obstaclecollision F (2, 1: 1348.75) (2,2: 1118.8) (2,4: 270.6) (6,6: 157.45)
+Obstaclecollision T (2, 1: 1472.4) (2,2: 496.5) (2,4: 152.55) (6,6:75.25)\\
+Obstaclecollision F (2, 1: 1348.75) (2,2: 1118.8) (2,4: 270.6) (6,6: 157.45)\\
 
 We can see that in most cases, the collisionoccurence is about the same, irregardless of counting obstacles moving into the player (from behind) or not. Ther is one large outlier where obstacles have the same slow speed as the playerobject, so it seems the playerobject is still quite adapt at moving out of harms way, but is much worse at finding positions where obstacles won't hit it from unwatched angles.
 
@@ -485,16 +485,16 @@ The follow problem that can be seen is that when the terminate conditions are su
 
 
 
-\begin{center}
-\begin{tabular}{ | m{5em} | m{5em} | m{5em} | } 
-\hline
- & \multicolumn{2}{c|}{R} \\ 
-\hline
-\multirow{2}{*}{4} & cell5 & cell6 \\ 
- & cell8 & cell9 \\ 
-\hline
-\end{tabular}
-\end{center}
+%\begin{center}
+%\begin{tabular}{ | m{5em} | m{5em} | m{5em} | } 
+%\hline
+ %& \multicolumn{2}{c|}{R} \\ 
+%\hline
+%\multirow{2}{*}{4} & cell5 & cell6 \\ 
+ %& cell8 & cell9 \\ 
+%\hline
+%\end{tabular}
+%\end{center}
 
 
 
