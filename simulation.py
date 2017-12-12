@@ -10,8 +10,8 @@ screenHeight = 500
 reset = False
 
 # (2, 2) (2, 1)(2, 4)(6, 6)
-g_obstSpeed = 2
-g_playerSpeed = 2
+g_obstSpeed = 6
+g_playerSpeed = 6
 TestCollisionObs = False
 N_tests = 20
 N_ObsCol = 0
