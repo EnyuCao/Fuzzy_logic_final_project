@@ -74,6 +74,12 @@ def main(width, height):
         clock.tick(60)
 
 
+# TODO  [Cleaning code] - For after milestone 2
+#       give Unit x, y, width, height
+#       in player super() with width=size and height=size
+#       in rect_object super()
+#       in simulation combine calling hadleInput/update/draw
+#           for units and players
 class Unit():
     def handleInput(self, keys):
         print("Implement handleInput in child class unit")
@@ -312,10 +318,6 @@ class Obstacle_rect(Unit):
 
 
 class Simulation():
-    dist_range = [0,5,25,70,100]
-    phi_range = np.array(range(5))*np.pi/32
-    fls = create_player_fls(dist_range, phi_range)
-    player = Player(20, 460, 20, 2, dist_range[-1], fls)
     units = []
     background = create_background()
 
@@ -343,16 +345,27 @@ class Simulation():
         for x, y, w, h in rect_Objs:
             self.units.append(Obstacle_rect(x, y, w, h))
 
+        dist_range = [0,5,25,70,100]
+        phi_range = np.array(range(5))*np.pi/32
+        fls = create_player_fls(dist_range, phi_range)
+        self.players = [
+            Player(20, 460, 20, 2, dist_range[-1], fls),
+#            Player(30, 450, 20, 2, dist_range[-1], fls),
+        ]
+
     def handleInput(self, event, keys):
-        self.player.handleInput(keys)
+        for player in self.players:
+            player.handleInput(keys)
         for unit in self.units:
             unit.handleInput(keys)
 
     def update(self):
-        self.player.update(self.units)
+        for player in self.players:
+            player.update(self.units)
         for i, unit in enumerate(self.units):
             objects = [unit for j, unit in enumerate(self.units) if i != j]
-            objects.append(self.player)
+            for player in self.players:
+                objects.append(player)
             unit.update(objects)
 
     def draw(self, screen):
@@ -361,7 +374,8 @@ class Simulation():
         for unit in self.units:
             unit.draw(screen)
 
-        self.player.draw(screen)
+        for player in self.players:
+            player.draw(screen)
 
 
 if __name__ == "__main__":
