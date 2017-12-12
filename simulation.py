@@ -7,6 +7,14 @@ pygame.init()
 done = False
 screenWidth = 600
 screenHeight = 500
+reset = False
+
+g_obstSpeed = 6
+g_playerSpeed = 2
+TestCollisionObs = True
+N_tests = 20
+N_ObsCol = 0
+g_testing = False
 
 def rotate2D(M, phi):
     R = np.array([
@@ -55,23 +63,6 @@ def filterEvents():
             filteredEvents.append(event)
 
     return (filteredEvents, keysPressed)
-
-
-def main(width, height):
-    global done
-    screen = pygame.display.set_mode((width, height))
-    active_scene = Simulation()
-
-    while not done:
-        clock = pygame.time.Clock()
-
-        filteredEvents = filterEvents()
-        active_scene.handleInput(*filteredEvents)
-        active_scene.update()
-        active_scene.draw(screen)
-
-        pygame.display.flip()
-        clock.tick(60)
 
 
 # TODO  [Cleaning code] - For after milestone 2
@@ -136,6 +127,7 @@ class Player(Unit):
                 self.phi = (self.phi+.5*np.pi)%(2*np.pi)
 
     def update(self, objects):
+        global reset, N_ObsCol, TestCollisionObs
 
         if self.fls:
             df = min(self.get_distance(objects, .1*np.pi),
@@ -167,8 +159,11 @@ class Player(Unit):
         if (not collision):
             self.x = max(0, min(nx, screenWidth - self.size))
             self.y = max(0, min(ny, screenHeight - self.size))
+        else:
+            reset = True
 
-        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
+        if(not g_testing):
+            self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
         # TODO remove later
         if self.tmp:
@@ -224,7 +219,7 @@ class Player(Unit):
                 break
             i += 1
         # TODO remove later
-        self.drawline = [(x_pos,y_pos),(x_pos+x_pos_O,y_pos+y_pos_O)]
+        # self.drawline = [(x_pos,y_pos),(x_pos+x_pos_O,y_pos+y_pos_O)]
         # Determine distance to object, adjust for size of player.
         if (abs(np.array([y_pos_O, x_pos_O])) < .5 * self.size + 1).all():
             return 0
@@ -240,7 +235,7 @@ class Obstacle_rect(Unit):
     color = (0, 0, 0)
     dTime = 1
 
-    def __init__(self, x, y, width, height=None, speed=0, dChangeTime=60):
+    def __init__(self, x, y, width, height=None, speed=g_obstSpeed, dChangeTime=30):
         self.x = x
         self.y = y
         self.width = width
@@ -264,6 +259,7 @@ class Obstacle_rect(Unit):
         pass
 
     def update(self, objects):
+        global reset, N_ObsCol, TestCollisionObs
         # if speed is 0 no update is needed
         if (self.speed == 0): return
         self.dTime -= 1
@@ -278,9 +274,12 @@ class Obstacle_rect(Unit):
         ny = self.y + self.d[1]
 
         nRect = pygame.Rect(nx, ny, self.width, self.height)
-        for obj in objects:
+        for i, obj in enumerate(objects):
             if (obj.checkCollsion_rect(nRect)):
                 collision = True
+                if (i == len(objects) - 1) and TestCollisionObs:
+                    reset = True
+                    N_ObsCol += 1
 
         if (not collision):
             self.x = max(0, min(nx, screenWidth - self.width))
@@ -292,7 +291,8 @@ class Obstacle_rect(Unit):
             self.d[0] = cosT * self.d[0] + -sinT * self.d[1]
             self.d[1] = sinT * self.d[0] +  cosT * self.d[1]
 
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        if(not g_testing):
+            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         return collision
 
     def draw(self, screen):
@@ -308,6 +308,9 @@ class Simulation():
         # Chose x, y and size to be multiples of 20 to allign with background
         # rect_Objs = [(240, 240, 8,6), (100, 100, 40, 40), (400, 400, 60, 60),
                      # (60, 400, 40, 40), (400, 60, 80, 80)]
+        global g_playerSpeed
+        self.players = []
+        self.units = []
 
         rect_Objs = [
                 (100, 100, 40, 40),
@@ -329,10 +332,11 @@ class Simulation():
 
         fls = create_player_fls('./fls/V1.fis')
         self.players = [
-            Player(20, 460, 20, 2, fls)
+            Player(20, 460, 20, g_playerSpeed, fls)
         ]
 
     def handleInput(self, event, keys):
+        if(g_testing): return
         for player in self.players:
             player.handleInput(keys)
         for unit in self.units:
@@ -356,6 +360,60 @@ class Simulation():
         for player in self.players:
             player.draw(screen)
 
+def main_testing(width, height):
+    """ 
+    Main function used for testing
+    Prints the number of frames it takes for the player to hit an obst
+    And the number of times the collision was because of the movement of
+    an obstacle.
+    """
+    global done, reset, N_tests, TestCollisionObs, N_ObsCol
+    # screen = pygame.display.set_mode((width, height))
+    ticks = 0
+    n = 0
+    # active_scene = Simulation()
+
+    while not done and n < N_tests:
+        reset = False
+        active_scene = Simulation()
+        ticks = 0
+        while (not reset) and (not done):
+            filteredEvents = filterEvents()
+            active_scene.handleInput(*filteredEvents)
+            active_scene.update()
+
+            # pygame.display.flip()
+            ticks += 1
+
+        print(ticks)
+        n += 1
+
+    print("Player speed: %.2f" % g_playerSpeed)
+    print("Obstacle speed: %.2f" % g_obstSpeed)
+
+    if(TestCollisionObs):
+        print('Number of collisions by obstacle: %i' % N_ObsCol)
+
+
+def main(width, height):
+    global done
+    screen = pygame.display.set_mode((width, height))
+    active_scene = Simulation()
+
+    while not done:
+        clock = pygame.time.Clock()
+
+        filteredEvents = filterEvents()
+        active_scene.handleInput(*filteredEvents)
+        active_scene.update()
+        active_scene.draw(screen)
+
+        pygame.display.flip()
+        clock.tick(120)
+
 
 if __name__ == "__main__":
-    main(screenWidth, screenHeight)
+    if g_testing:
+        main_testing(screenWidth, screenHeight)
+    else:
+        main(screenWidth, screenHeight)
