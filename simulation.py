@@ -96,14 +96,13 @@ class Player(Unit):
     dx = 0
     dy = 0
 
-    def __init__(self, x, y, size, speed, max_dist=0, fls=None):
+    def __init__(self, x, y, size, speed, fls=None):
         self.x = x
         self.y = y
         self.phi = np.pi
         self.rspeed = 5
         self.speed = speed
         self.size = size
-        self.max_dist = max_dist
         self.fls = fls
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
         # TODO for testing
@@ -139,31 +138,13 @@ class Player(Unit):
     def update(self, objects):
 
         if self.fls:
-            pass
-#            df = self.get_distance(objects, 0)
-#            db = self.get_distance(objects, .5 * np.pi)
-#            dl = self.get_distance(objects, np.pi)
-#            dr = self.get_distance(objects, 1.5 * np.pi)
-#            self.phi = calcDir(dl, dr, df, db, self.phi)
+            df = min(self.get_distance(objects, .1*np.pi),
+                     self.get_distance(objects, -.1*np.pi))
+            dl = min(self.get_distance(objects, .25*np.pi),
+                     self.get_distance(objects, .45*np.pi))
+            dr = min(self.get_distance(objects, -.25*np.pi),
+                     self.get_distance(objects, -.45*np.pi))
 
-            df = min(
-#                self.get_distance(objects, 0),
-                self.get_distance(objects, .1*np.pi),
-                self.get_distance(objects, -.1*np.pi),
-                self.max_dist
-            )
-            dl = min(
-#                self.get_distance(objects, .35*np.pi),
-                self.get_distance(objects, .25*np.pi),
-                self.get_distance(objects, .45*np.pi),
-                self.max_dist
-            )
-            dr = min(
-#                self.get_distance(objects, -.35*np.pi),
-                self.get_distance(objects, -.25*np.pi),
-                self.get_distance(objects, -.45*np.pi),
-                self.max_dist
-            )
             datapoint = {'distf':df, 'distl':dl, 'distr':dr}
             phi_dict = self.fls(datapoint)
             delta_phi = phi_dict['phil'] - phi_dict['phir']
@@ -259,7 +240,7 @@ class Obstacle_rect(Unit):
     color = (0, 0, 0)
     dTime = 1
 
-    def __init__(self, x, y, width, height=None, speed=1.5, dChangeTime=30):
+    def __init__(self, x, y, width, height=None, speed=0, dChangeTime=60):
         self.x = x
         self.y = y
         self.width = width
@@ -331,8 +312,8 @@ class Simulation():
         rect_Objs = [
                 (100, 100, 40, 40),
                 (100, 200, 40, 40),
-                (100, 400, 40, 40), 
-                (250, 250, 30, 30), 
+                (100, 400, 40, 40),
+                (250, 250, 30, 30),
                 (200, 200, 30, 30),
                 (200, 100, 30, 30),
                 (200, 300, 30, 30),
@@ -346,12 +327,9 @@ class Simulation():
         for x, y, w, h in rect_Objs:
             self.units.append(Obstacle_rect(x, y, w, h))
 
-        dist_range = [0,5,25,70,100]
-        phi_range = np.array(range(5))*np.pi/32
-        fls = create_player_fls(dist_range, phi_range)
+        fls = create_player_fls('./fls/V1.fis')
         self.players = [
-            Player(20, 460, 20, 2, dist_range[-1], fls),
-#            Player(30, 450, 20, 2, dist_range[-1], fls),
+            Player(20, 460, 20, 2, fls)
         ]
 
     def handleInput(self, event, keys):
