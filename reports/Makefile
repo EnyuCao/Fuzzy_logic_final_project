@@ -1,5 +1,5 @@
-FNAME?=main
-BNAME?=bibliography
+FNAME?=group_09_milestone2
+BNAME?=mybibfile
 
 pdf: $(FNAME).tex $(BNAME).bib
 	make raw
