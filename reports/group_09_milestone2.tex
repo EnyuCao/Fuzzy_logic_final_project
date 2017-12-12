@@ -471,8 +471,8 @@ For each set of speeds two different types of terminate conditions where used. T
 
 \section{Discussion}
 From the data there where two visible problems with the fls.\\
-The first being that when the speeds increase the duration of the simulations decreases.
-This can be explained by the fact that the mfs use a distance in pixels to calculate the closeness of objects, the membership functions don't change based on the speed. The fls also does not have speed as one of it's inputs. This means that the fls has no way to correct for speed. When the robot moves at a higher speed the something that was 'far' for a lower speed might now be reached in one frame.\\
+The first being that when the speeds increase the duration of the simulations decreases.This can be explained by the fact that the mfs use a distance in pixels to calculate the closeness of objects, the membership functions don't change based on the speed. The fls also does not have speed as one of it's inputs. This means that the fls has no way to correct for speed. When the robot moves at a higher speed the something that was 'far' for a lower speed might now be reached in one frame.\\
+The follow problem that can be seen is that when the terminate conditions are such that the simulation is only terminated when the robot makes a move that results in a collision, the duration of the simulations is lower in all setups. A reason for this can be the fact that the fls does not look behind it self to check for possible collisions this means that it can be hit from behind or the side by an obstacle.\\
 
 
 %TODO
