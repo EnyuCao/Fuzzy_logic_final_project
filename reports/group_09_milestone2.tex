@@ -112,7 +112,6 @@
 
 
 
-
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
@@ -197,7 +196,8 @@
 
 % *** ALIGNMENT PACKAGES ***
 %
-%\usepackage{array}
+\usepackage{array}
+\usepackage{multirow}
 % Frank Mittelbach's and David Carlisle's array.sty patches and improves
 % the standard LaTeX2e array and tabular environments to provide better
 % appearance and additional user controls. As the default LaTeX2e table
@@ -478,6 +478,19 @@ We can see that in most cases, the collisionoccurence is about the same, irregar
 %TODO
 %\section{Conclusions and Future Work}
 %The conclusion goes here (to be done later).
+
+
+
+\begin{center}
+\begin{tabular}{ | m{5em} | m{5em} | m{5em} | } 
+\hline
+ & \multicolumn{2}{c|}{R} \\ 
+\hline
+\multirow{2}{*}{4} & cell5 & cell6 \\ 
+ & cell8 & cell9 \\ 
+\hline
+\end{tabular}
+\end{center}
 
 
 
