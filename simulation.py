@@ -9,12 +9,13 @@ screenWidth = 600
 screenHeight = 500
 reset = False
 
-g_obstSpeed = 6
+# (2, 2) (2, 1)(2, 4)(6, 6)
+g_obstSpeed = 2
 g_playerSpeed = 2
-TestCollisionObs = True
+TestCollisionObs = False
 N_tests = 20
 N_ObsCol = 0
-g_testing = False
+g_testing = True
 
 def rotate2D(M, phi):
     R = np.array([
