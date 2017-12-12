@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import numpy as np
-import matplotlib.pyplot as plt
 from collections import Counter
 
 # Membership Functions ########################################################
@@ -252,6 +251,8 @@ class Reasoner:
 
 # Tests #######################################################################
 # TODO to be removed at some point
+# also the matplotlib import (that's why I put it here)
+import matplotlib.pyplot as plt
 
 # not used anymore
 def pltMF(mf, p, q):

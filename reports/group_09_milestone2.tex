@@ -413,9 +413,28 @@ The paper concludes in noting that, altough most of their tests resulted in a po
 %\subsection{Data}
 %Most of the data will be personal knowledge. The first versions of membership functions and rules will be created by us. When possible the newer versions of the membership functions and rules will be extrapolated from the test result of the previous evolution of the system.
 \subsection{Design}
-The general design of our system is still unknown at this point. As inputs we will use the distances to the nearest objects at several degrees of rotation and the distance and angle to the target location. As outputs, we will use accelleration and degree of rotation of the robot. However, these might all still be subject to change.
+%The general design of our system is still unknown at this point. As inputs we will use the distances to the nearest objects at several degrees of rotation and the distance and angle to the target location. As outputs, we will use accelleration and degree of rotation of the robot. However, these might all still be subject to change.
+Our Fuzzy Logic System uses three inputs and gives two outputs. The inputs we use are the distance to the nearest object in three different directions: front, front-left and front-right. The output is given in the form of two angles a left angle and a right angle, the robot will move in the direction of the combination of these two angles.\\
+Our input variables have a mix of triangular and trapezoidal membership functions (
+%TODO figures of memberships functions
+). For all three inputs the range (in pixels) and membership functions are equal. The placement of the functions is chosen such that only a very small distance (about the size of the robot) is seen as a small distance, anything above about 5x the robots size is seen as a large distance and in between is a medium amount of distance. The functions have a reasonable amount of overlap since the random obstacle movement in our environment is cause for a decent amount of overlap.\\
+We use a full rulebase of 27 rules for our system (
+%TODO table with rules
+). In general, the rules are chosen such that the robot makes sharper turns if the distance to the objects in front of it is smaller and will always prioritize a left turn over a right turn.\\
+
 \subsection{Implementation}
-The two most important parts, the simulation and the fuzzy logic system, we be created by us in python (exact algorithms are not yet known).
+%The two most important parts, the simulation and the Fuzzy Logic System, we be created by us in python (exact algorithms are not yet known).
+We used python to build both the Fuzzy Logic System implementation and the simulated environment. For the simulations we primarily used the pygame package.\\
+\subsubsection{Fuzzy Logic System implementation}
+We implemented a variety of possible membership functions for our FLS implementation. Most of which use standard functions to return membership. For the triangular and trapezoidal membership functions, however, we used a sequence of if-else statements to calculate membership, rather than taking the minimum value from two lines. This way it was easier to make sure we do not accidentally devide by zero.\\
+For our input and output variables, we simply record a name, range and list of membership functions. When calculating the membership, we return a dictionary with all memberships of a datapoint for the membership functions of the variable.\\
+For our rules, we implemented AND and OR rules. AND rules can be calculated using the minimum operation or the algebraic product. OR rules can be calculated using the max operation or the algebraic sum.\\
+% TODO inference/aggregation/defuzzification with pseudocode
+\subsubsection{Simulated Environment}
+The environment our robot moves around in is a box with an amount of obstacles. The obstacles are rectangular in shape and move in a random direction. Every certain amount of timesteps, the direction in which the obstacles move changes in a random new direction.\\
+The robot moves around in this environment at a fixed speed and has to avoid colliding with the obstacles. The change in angle of the robot at every tick is determined by the FLS.\\
+The distance from the robot to an object are determined by raycasting. For each timestep, the robot casts two rays slightly around the desired direction. With this ray, the distance to the nearest object (that includes the walls of the simulation) is determined. The distance in that direction is then the smallest value returned from those two rays. This is done for angles around 0 degrees, 35 degrees and -35 degrees and the distances are passed to the FLS. The FLS then determines a left and right turning degree and the middle of those two angles is taken as the change in directions that the robot follows.
+% TODO maybe pseudocode
 % TODO Link to repo?
 \subsection{Link to repository}
 % TODO remove underscores from directory and url
