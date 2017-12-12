@@ -293,6 +293,7 @@ class Obstacle_rect(Unit):
             self.d[1] = sinT * self.d[0] +  cosT * self.d[1]
 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        return collision
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
