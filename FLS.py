@@ -13,12 +13,16 @@ class TriangularMF:
         self.end = c
 
     def membership(self, x):
+        # outside triangle
         if x < self.start or x > self.end:
             return 0
+        # left half triangle
         elif x < self.top:
             return (x - self.start) / float(self.top - self.start)
+        # top triangle
         elif self.top == self.end:
             return 1
+        # right half triangle
         else:
             return (self.end - x) / float(self.end - self.top)
 
@@ -27,17 +31,21 @@ class TrapezoidalMF:
     def __init__(self, name, a, b, c, d):
         self.name = name
         self.start = a
-        self.topl = b
-        self.topr = c
+        self.top_left = b
+        self.top_right = c
         self.end = d
 
     def membership(self, x):
+        # outside trapezoid
         if x < self.start or x > self.end:
             return 0
-        elif x < self.topl:
-            return (x - self.start) / float(self.topl - self.start)
-        elif x > self.topr:
-            return (self.end - x) / float(self.end - self.topr)
+        # left slope trapezoid
+        elif x < self.top_left:
+            return (x - self.start) / float(self.top_left - self.start)
+        # right slope trapezoid
+        elif x > self.top_right:
+            return (self.end - x) / float(self.end - self.top_right)
+        # top trapezoid
         else:
             return 1
 
@@ -47,6 +55,10 @@ class GaussianMF:
         self.name = name
         self.m = m
         self.s = s
+        # calculate range outside of which values are basically zero
+        offset = 1000**(1./2)*s
+        self.start = m - offset
+        self.end = m + offset
 
     def membership(self, x):
         return np.e**(-.5*((x - self.m) / float(self.s))**2)
@@ -55,10 +67,16 @@ class GaussianMF:
 class BellShapedMF:
 
     def __init__(self, name, m, s, a):
+        # check for valid parameters
+        assert a > 0, "Parameter value 'a' too small"
         self.name = name
         self.m = m
         self.s = s
         self.a = a
+        # calculate range outside of which values are basically zero
+        offset = 1000**(1./2/a)*s
+        self.start = m - offset
+        self.end = m + offset
 
     def membership(self, x):
         return 1 / float(1 + abs((x - self.m) / float(self.s))**(2 * self.a))
@@ -70,6 +88,14 @@ class SigmoidalMF:
         self.name = name
         self.a = a
         self.c = c
+        # calculate range outside of which values are basically zero
+        offset = np.log(1000)/(-a)
+        if offset < c:
+            self.start = c + offset
+            self.end = None
+        else:
+            self.start = None
+            self.end = c + offset
 
     def membership(self, x):
         return 1 / float(1 + np.e**(-self.a*(x - self.c)))
@@ -94,6 +120,7 @@ class Variable:
             print('\t       and reinstate assert/exception')
         return {mf.name: mf.membership(x) for mf in self.mfs}
 
+    # returns mf by name
     def get_mf(self, name):
         for mf in self.mfs:
             if mf.name == name:
@@ -122,6 +149,7 @@ class Rule:
         self.op = op[0].upper()
         self.subop = op[1].upper()
         self.con_dict = con
+        # check for correct operation names
         assert (self.op, self.subop) in [
             ("AND", "MIN"),
             ("AND", "PROD"),
@@ -135,10 +163,13 @@ class Rule:
         elif self.op == "OR":
             fs = 0
         for cur_in in [i for i in inputs if i.name in self.ant_dict]:
+            # make sure each input has a value
             assert cur_in.name in x_dict, "Insufficient data"
+            # get membership value
             ant_fs = cur_in.get_mf(
                 self.ant_dict[cur_in.name]
             ).membership(x_dict[cur_in.name])
+            # combine inputs with rule operation
             if self.op == "AND":
                 if self.subop == "MIN":
                     if ant_fs < fs:
@@ -161,7 +192,9 @@ class Rulebase:
     def get_fs(self, x_dict, inputs):
         result = {}
         for rule in self.rules:
+            # calculate rule firing strength
             fs = rule.get_fs(x_dict, inputs)
+            # collect all highest consequent firing stengths
             con_dict = rule.con_dict
             for con in con_dict:
                 if con not in result:
@@ -175,7 +208,6 @@ class Rulebase:
 # Reasoner ####################################################################
 # TODO needs huge overhaul to support different types of
     # inference, aggregation and defuzzification
-# TODO also, breaks for anything but TriangularMFs and TrapezoidalMFs
 # TODO maybe make variable names shorter/more appropriate
 
 class Reasoner:
@@ -211,12 +243,18 @@ class Reasoner:
             if not len(fs_dict[output.name]):
                 input_value_pairs[output.name] = [(0.,0.)]
                 continue
+            # determine relevant mf range
             end, start = output.r
             for mf_name in fs_dict[output.name].keys():
                 mf = output.get_mf(mf_name)
-                # TODO only supports TriangularMFs and TrapezoidalMFs
-                start = mf.start if mf.start < start else start
-                end = mf.end if mf.end > end else end
+                if type(start) == type(None):
+                    start = output.r[0]
+                else:
+                    start = mf.start if mf.start < start else start
+                if type(end) == type(None):
+                    end = output.r[1]
+                else:
+                    end = mf.end if mf.end > end else end
             # Second discretize this area and aggragate
             cur_input_value_pairs = []
             for x in np.arange(
@@ -273,9 +311,10 @@ def plot_var(var):
         mem = []
         for xx in x:
             mem.append(var.mfs[i].membership(xx))
-        plt.scatter(x, mem, color='C'+str(i), s=5)
+        plt.plot(x, mem, color='C'+str(i))
     plt.show()
     return
+
 
 if __name__ == "__main__":
 
@@ -296,13 +335,13 @@ if __name__ == "__main__":
         TrapezoidalMF("amazing", 6, 8, 10, 10)
     ]
     quality = Input("quality", (0, 10), mfs_quality)
-   
+
     # Output variable for the amount of money
     # Your code here
     mfs_money = [
         TrapezoidalMF("low", 0, 0, 100, 250),
         TriangularMF("medium", 150, 250, 350),
-        TrapezoidalMF("high", 250, 400, 500, 500)
+        TrapezoidalMF("high", 250, 400, 500, 500),
     ]
     money = Output("money", (0, 500), mfs_money)
     money2 = Output("money2", (0, 500), mfs_money)
@@ -314,9 +353,9 @@ if __name__ == "__main__":
     #print(quality.membership(6))
     #print(money.membership(222))
 
-    # plot_var(income)
-    # plot_var(quality)
-    # plot_var(money)
+    #plot_var(income)
+    #plot_var(quality)
+    #plot_var(money)
 
     rule1 = Rule(
         {"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}
