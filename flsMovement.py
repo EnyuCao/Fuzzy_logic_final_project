@@ -147,7 +147,7 @@ def create_player_fls(filename):
     # FLS.Rule(
         # {'distf':'high', 'distl':'low', 'distr':'medium'},
         # ('and', 'min'),
-        # {'phil':'low', 'phir':'low'}
+        # {'phil':'low', 'phir':'medium'}
     # ),
     # FLS.Rule(
         # {'distf':'high', 'distl':'low', 'distr':'high'},
@@ -157,7 +157,7 @@ def create_player_fls(filename):
     # FLS.Rule(
         # {'distf':'high', 'distl':'medium', 'distr':'low'},
         # ('and', 'min'),
-        # {'phil':'low', 'phir':'low'}
+        # {'phil':'medium', 'phir':'low'}
     # ),
     # FLS.Rule(
         # {'distf':'high', 'distl':'medium', 'distr':'medium'},

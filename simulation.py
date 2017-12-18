@@ -10,12 +10,14 @@ screenHeight = 500
 reset = False
 
 # (2, 2) (2, 1)(2, 4)(6, 6)
-g_obstSpeed = 6
-g_playerSpeed = 6
+g_obstSpeed = 0
+g_playerSpeed = 5
 TestCollisionObs = False
 N_tests = 20
 N_ObsCol = 0
-g_testing = True
+g_testing = False
+
+N_collisions = 0
 
 def rotate2D(M, phi):
     R = np.array([
@@ -97,9 +99,11 @@ class Player(Unit):
         self.size = size
         self.fls = fls
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
+        self.colliding = False
         # TODO for testing
         self.tmp = False
-        self.drawline = None
+        self.draw_vision = True
+        self.vision_lines = []
 
     #TODO: read out raytrace in specific directions
 
@@ -128,15 +132,20 @@ class Player(Unit):
                 self.phi = (self.phi+.5*np.pi)%(2*np.pi)
 
     def update(self, objects):
-        global reset, N_ObsCol
+        global reset, N_ObsCol, N_collisions
+
+        # TODO remove later
+        self.vision_lines = []
 
         if self.fls:
-            df = min(self.get_distance(objects, .1*np.pi),
-                     self.get_distance(objects, -.1*np.pi))
-            dl = min(self.get_distance(objects, .25*np.pi),
-                     self.get_distance(objects, .45*np.pi))
-            dr = min(self.get_distance(objects, -.25*np.pi),
-                     self.get_distance(objects, -.45*np.pi))
+            df = min(self.get_distance(objects, 10/180.*np.pi),
+                     self.get_distance(objects, -10/180.*np.pi))
+            dl = min(self.get_distance(objects, 25/180.*np.pi),
+                     self.get_distance(objects, 45/180.*np.pi),
+                     self.get_distance(objects, 65/180.*np.pi))
+            dr = min(self.get_distance(objects, -25/180.*np.pi),
+                     self.get_distance(objects, -45/180.*np.pi),
+                     self.get_distance(objects, -65/180.*np.pi))
 
             datapoint = {'distf':df, 'distl':dl, 'distr':dr}
             phi_dict = self.fls(datapoint)
@@ -158,10 +167,20 @@ class Player(Unit):
                 collision = True
 
         if (not collision):
+            if nx >= screenWidth - self.size or nx <= 0 \
+            or ny >= screenHeight - self.size or ny <= 0:
+                if not self.colliding:
+                    N_collisions += 1
+                    self.colliding = True
+            else:
+                self.colliding = False
             self.x = max(0, min(nx, screenWidth - self.size))
             self.y = max(0, min(ny, screenHeight - self.size))
         else:
             reset = True
+            if not self.colliding:
+                N_collisions += 1
+                self.colliding = True
 
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
@@ -176,8 +195,14 @@ class Player(Unit):
 
     def draw(self, screen):
         #TODO remove later
-        if self.drawline:
-            pygame.draw.line(screen,(255,0,0),self.drawline[0],self.drawline[1])
+        if self.draw_vision:
+            for i in range(len(self.vision_lines)):
+                pygame.draw.line(
+                    screen,
+                    (255,0,0),
+                    self.vision_lines[i][0],
+                    self.vision_lines[i][1]
+                )
         R = np.array([
             [np.cos(self.phi),-np.sin(self.phi)],
             [np.sin(self.phi),np.cos(self.phi)]]
@@ -219,7 +244,7 @@ class Player(Unit):
                 break
             i += 1
         # TODO remove later
-        # self.drawline = [(x_pos,y_pos),(x_pos+x_pos_O,y_pos+y_pos_O)]
+        self.vision_lines += [[(x_pos,y_pos),(x_pos+x_pos_O,y_pos+y_pos_O)]]
         # Determine distance to object, adjust for size of player.
         if (abs(np.array([y_pos_O, x_pos_O])) < .5 * self.size + 1).all():
             return 0
