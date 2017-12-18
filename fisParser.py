@@ -100,11 +100,15 @@ def parseRule(l, inputs, outputs, andMeth, orMeth):
     outDict = {}
     # Input of rules
     for i, x in enumerate(l[:len(inputs)]):
+        if int(x) == 0:
+            continue
         inVar = inputs[i]
         inDict[inVar.name] = inVar.mfs[int(x) - 1].name
 
     # Output of rules
     for i, x in enumerate(l[len(inputs):len(inputs) + len(outputs)]):
+        if int(x) == 0:
+            continue
         outVar = outputs[i]
         outDict[outVar.name] = outVar.mfs[int(x) - 1].name
 

@@ -115,9 +115,11 @@ class Variable:
         # TODO
 #        assert x >= self.r[0] and x <= self.r[1], "Value out of range"
         if not (x >= self.r[0] and x <= self.r[1]):
-            print('[WARNING] Value out of range')
-            print('\t[TODO] cap variables in flsMovement.calcDir')
-            print('\t       and reinstate assert/exception')
+            print(self.name)
+            print(x)
+            # print('[WARNING] Value out of range')
+            # print('\t[TODO] cap variables in flsMovement.calcDir')
+            # print('\t       and reinstate assert/exception')
         return {mf.name: mf.membership(x) for mf in self.mfs}
 
     # returns mf by name
@@ -211,21 +213,24 @@ class Rulebase:
 # TODO maybe make variable names shorter/more appropriate
 
 class Reasoner:
-    def __init__(self, rulebase, inputs, outputs, n_points, defuzzification):
+    def __init__(self, rulebase, inputs, outputs, n_points, 
+                 aggMethod, defuzzification):
         self.rulebase = rulebase
         self.inputs = inputs
         self.outputs = outputs
         self.discretize = n_points
+        self.aggMethod = aggMethod.upper()
         self.defuzzification = defuzzification.upper()
 
     def inference(self, x_dict):
-        # 1. Calculate the highest firing strength found in the rules per 
+        # 1. Calculate the highest firing strength found in the rules per
         # membership function of the output variable
         # looks like: {"low":0.5, "medium":0.25, "high":0}
         fs_dict = self.rulebase.get_fs(x_dict, self.inputs)
 
         # 2. Aggragate and discretize
-        # looks like: [(0.0, 1), (1.2437810945273631, 1), (2.4875621890547261, 1), (3.7313432835820892, 1), ...]
+        # looks like: [(0.0, 1), (1.2437810945273631, 1),
+        # (2.4875621890547261, 1), (3.7313432835820892, 1), ...]
         input_value_pairs = self.aggregate(fs_dict)
 
         # 3. Defuzzify
@@ -233,56 +238,103 @@ class Reasoner:
         crisp_outputs = self.defuzzify(input_value_pairs)
         return crisp_outputs
 
+    def calc_mem_at_point(self, x, output, fs_dict):
+        memberships = output.membership(x)
+        values_at_x = []
+        for (mf_name, fs) in fs_dict[output.name].items():
+            values_at_x.append(min(memberships[mf_name], fs))
+
+        # Maximum of values
+        if self.aggMethod == 'MAX':
+            pair = (x, max(values_at_x))
+
+        # Sum of values
+        elif self.aggMethod == 'SUM':
+            pair = (x, sum(values_at_x))
+
+        # elif self.aggMethod == 'PROBOR':
+            # pass
+
+        else:
+            assert "Unknown aggregation method"
+
+        return pair
+
     # TODO support more types of aggregation
     def aggregate(self, fs_dict):
         # First find where the aggrageted area starts and ends
         # Your code here
         input_value_pairs = {}
         for output in self.outputs:
-            # Check whether any rules fired, else pass equivalent of 0
-            if not len(fs_dict[output.name]):
-                input_value_pairs[output.name] = [(0.,0.)]
+
+            # Check whether any rules fired, else pass equivalent of None
+            if len(fs_dict.get(output.name, [])) == 0:
+                input_value_pairs[output.name] = None
                 continue
+
             # determine relevant mf range
-            end, start = output.r
+            start, end = output.r
             for mf_name in fs_dict[output.name].keys():
                 mf = output.get_mf(mf_name)
-                if type(start) == type(None):
-                    start = output.r[0]
-                else:
-                    start = mf.start if mf.start < start else start
-                if type(end) == type(None):
-                    end = output.r[1]
-                else:
-                    end = mf.end if mf.end > end else end
+                if mf.start is not None:
+                    start = min(mf.start, start)
+                if mf.end is not None:
+                    end = max(mf.end, end)
+
+            start = max(output.r[0], start)
+            end = min(output.r[1], end)
+
             # Second discretize this area and aggragate
             cur_input_value_pairs = []
-            for x in np.arange(
-                start, end, (end - start)/float(self.discretize)
-            ):
-                memberships = output.membership(x)
-                values_at_x = []
-                for (mf_name, fs) in fs_dict[output.name].items():
-                    values_at_x.append(min(memberships[mf_name], fs))
-                cur_input_value_pairs.append((x, max(values_at_x)))
+            stepSize = (end - start)/float(self.discretize)
+            for x in np.arange(start, end, stepSize):
+                pair = self.calc_mem_at_point(x, output, fs_dict)
+                cur_input_value_pairs.append(pair)
             input_value_pairs[output.name] = cur_input_value_pairs
         return input_value_pairs
 
-    # TODO support more types of defuzzification
+    def calc_crisp_value(self, curPairs):
+        "Return the crips value based on the given area"
+
+        # If no rules where fired for ouput
+        if curPairs is None:
+            return 0
+
+        crispValue = 0
+        inputValues = [pairs[1] for pairs in curPairs]
+
+        # Smallest of max
+        if self.defuzzification == "SOM":
+            i = inputValues.index(max(inputValues))
+            crispValue = curPairs[i][0]
+
+        # least of max
+        elif self.defuzzification == "LOM":
+            i = -inputValues[::-1].index(max(inputValues)) - 1
+            crispValue = curPairs[i][0]
+
+        # mean of max
+        elif self.defuzzification == 'MOM':
+            m = max(inputValues)
+            crispValue = np.mean([x[0] for x in curPairs if x[1] == m])
+
+        # Centroid / Center of Gravity / center of Area
+        elif (self.defuzzification == 'COG'
+              or self.defuzzification == 'COA'
+              or self.defuzzification == 'CENTROID'):
+            tmp1 = np.sum([x[0] * x[1] for x in curPairs])
+            tmp2 = np.sum(inputValues)
+            crispValue = tmp1 / tmp2
+
+        else:
+            assert('Defuzzyfy operation unknown')
+
+        return crispValue
+
     def defuzzify(self, input_value_pairs):
         crisp_values = {}
         for (output_name, cur_input_value_pairs) in input_value_pairs.items():
-            crisp_value = 0
-            input_values = [pairs[1] for pairs in cur_input_value_pairs]
-            if self.defuzzification == "SOM":
-                crisp_value = cur_input_value_pairs[
-                    input_values.index(max(input_values))
-                ][0]
-            elif self.defuzzification == "LOM":
-                crisp_value = cur_input_value_pairs[
-                    -input_values[::-1].index(max(input_values)) - 1
-                ][0]
-            crisp_values[output_name] = crisp_value
+            crisp_values[output_name] = self.calc_crisp_value(cur_input_value_pairs)
         return crisp_values
 
 ###############################################################################
@@ -397,27 +449,27 @@ if __name__ == "__main__":
     # Test your implementation of the fuzzy inference
     # Enter your answers in the Google form to check them, round to two decimals
 
-    thinker = Reasoner(rulebase, inputs, outputs, 201, "som")
+    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "som")
     datapoint = {"income":100, "quality":1}
     print(thinker.inference(datapoint))
 
-    thinker = Reasoner(rulebase, inputs, outputs, 101, "som")
+    thinker = Reasoner(rulebase, inputs, outputs, 101, 'max', "som")
     datapoint = {"income":550, "quality":4.5}
     print(thinker.inference(datapoint))
 
-    thinker = Reasoner(rulebase, inputs, outputs, 201, "som")
+    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "som")
     datapoint = {"income":900, "quality":6.5}
     print(thinker.inference(datapoint))
 
-    thinker = Reasoner(rulebase, inputs, outputs, 201, "lom")
+    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "lom")
     datapoint = {"income":100, "quality":1}
     print(thinker.inference(datapoint))
 
-    thinker = Reasoner(rulebase, inputs, outputs, 101, "lom")
+    thinker = Reasoner(rulebase, inputs, outputs, 101, 'max', "lom")
     datapoint = {"income":550, "quality":4.5}
     print(thinker.inference(datapoint))
 
-    thinker = Reasoner(rulebase, inputs, outputs, 201, "lom")
+    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "lom")
     datapoint = {"income":900, "quality":6.5}
     print(thinker.inference(datapoint))
 
