@@ -95,7 +95,6 @@ def parseRule(l, inputs, outputs, andMeth, orMeth):
     l = l.replace(',', '').replace('(', '').replace(')', '').replace(':', '')
     l = l.replace('  ', ' ').split(' ')
 
-    # TODO implement not if needed
     inDict = {}
     outDict = {}
     # Input of rules
