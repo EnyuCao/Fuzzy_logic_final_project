@@ -112,14 +112,8 @@ class Variable:
         self.mfs = mfs
 
     def membership(self, x):
-        # TODO
-#        assert x >= self.r[0] and x <= self.r[1], "Value out of range"
-        if not (x >= self.r[0] and x <= self.r[1]):
-            print(self.name)
-            print(x)
-            # print('[WARNING] Value out of range')
-            # print('\t[TODO] cap variables in flsMovement.calcDir')
-            # print('\t       and reinstate assert/exception')
+        # make sure value is in variables range
+        assert x >= self.r[0] and x <= self.r[1], "Value out of range"
         return {mf.name: mf.membership(x) for mf in self.mfs}
 
     # returns mf by name
@@ -208,9 +202,7 @@ class Rulebase:
 ###############################################################################
 
 # Reasoner ####################################################################
-# TODO needs huge overhaul to support different types of
-    # inference, aggregation and defuzzification
-# TODO maybe make variable names shorter/more appropriate
+
 
 class Reasoner:
     def __init__(self, rulebase, inputs, outputs, n_points, 
@@ -239,6 +231,7 @@ class Reasoner:
         return crisp_outputs
 
     def calc_mem_at_point(self, x, output, fs_dict):
+        # Collect all membership values for the given output
         memberships = output.membership(x)
         values_at_x = []
         for (mf_name, fs) in fs_dict[output.name].items():
@@ -252,15 +245,11 @@ class Reasoner:
         elif self.aggMethod == 'SUM':
             pair = (x, sum(values_at_x))
 
-        # elif self.aggMethod == 'PROBOR':
-            # pass
-
         else:
             assert "Unknown aggregation method"
 
         return pair
 
-    # TODO support more types of aggregation
     def aggregate(self, fs_dict):
         # First find where the aggrageted area starts and ends
         # Your code here
@@ -284,9 +273,6 @@ class Reasoner:
                     end = output.r[1]
                 else:
                     end = mf.end if mf.end > end else end
-
-            start = max(output.r[0], start)
-            end = min(output.r[1], end)
 
             # Second discretize this area and aggragate
             cur_input_value_pairs = []
