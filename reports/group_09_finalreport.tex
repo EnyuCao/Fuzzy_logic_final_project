@@ -417,7 +417,7 @@ The paper concludes in noting that, although most of their tests resulted in a p
 % TODO Use the related work as an inspiration to your approach and provide what you will be doing differently. Elaborate more on: What will you contribute? What was the shortcoming of the previous systems? Be critical. 
 
 \section{Proposed Approach}
-% TODO If you do not have data to learn from you may skip this section. In the design, you can emphasize that the system is based on expert knowledge.
+% If you do not have data to learn from you may skip this section. In the design, you can emphasize that the system is based on expert knowledge.
 %\subsection{Data}
 %Most of the data will be personal knowledge. The first versions of membership functions and rules will be created by us. When possible the newer versions of the membership functions and rules will be extrapolated from the test result of the previous evolution of the system.
 \subsection{Design}
@@ -472,15 +472,15 @@ The following options are available to use in the FLS implementation used in thi
 
 \hfill\\
 \subsubsection*{Simulated Environment}
-The simulation environment consists of a square field. In this field a variable number of square obstacles and 'players' can be placed. The player movements can be controlled by either using the keyboard or giving it a FLS system to the player. If a FLS is given to a player it cannot be controlled manually.
+The simulation environment consists of a checkerboard field. In this field a variable number of square obstacles and 'players' can be placed. The player movements can be controlled by either using the keyboard or giving it a FLS system to the player. If a FLS is given to a player it cannot be controlled manually.
 All placed obstacles have the ability to make random movements around the field, when this option is turned on the obstacle chooses a random direction and moves in that direction for a given number of frames before picking a new random direction.
 
 When a moving object, either a player or an obstacle, tries to make a move which would result in two objects intersecting, this move is not allowed and the object will not move that frame. If this object is an obstacle the obstacle will rotate its moving direction 45 degrees clockwise.
 
-When the player object, from now on revert to as robot, has a FLS assigns to it every frame the inputs for the FLS are calculated and given to the Reasoner, the crisp values returned by the FLS are then used to set the direction the robot will move in for that frame. In this paper three inputs are used for the movement of the robot. All inputs correspond to the distance in pixels from the edge of the robot to the next obstacle, which can either be a placed obstacle or the wall. Each input is the distance from a different angle ranging from [-85, 80]. These angles are based on the rotation of the robot, the front-left input uses the [25, 45, 65, 85] degree angles to determine the distance to the closest obstacle, the front-right uses the angles [-60, -45, -25, -85] and the front inputs uses [-15, -5, 5, 15]. From the multiple distance the lowest is given to the FLS as input, the minimum value for multiple angles is used to give the robot a 'broader' range of vision. The robot has a speed, which is set in the beginning of the simulation, it will constantly move at this speed unless it is colliding with something. The FLS can only choose the direction of the robot.
+When the player object, from now on referred to as robot, has an FLS assigned to it, then every frame the inputs for the FLS are calculated and given to the Reasoner. The crisp values returned by the FLS are then used to set the direction the robot will move in for that frame. In this paper three inputs are used for the movement of the robot. All inputs correspond to the distance in pixels from the edge of the robot to the next obstacle, which can either be a placed obstacle or the wall. Each input is the distance at a different angle ranging from [-85, 85]. These angles are based on the rotation of the robot, the front-left input uses the [25, 45, 65, 85] degree angles to determine the distance to the closest obstacle, the front-right uses the angles [-60, -45, -25, -85] and the front inputs uses [-15, -5, 5, 15]. From the multiple distance the lowest is given to the FLS as input, the minimum value for multiple angles is used to give the robot a 'broader' range of vision. The robot has a speed, which is set in the beginning of the simulation, it will constantly move at this speed unless it is colliding with something. The FLS can only choose the direction of the robot.
 
 \section{Experiments and Results}
-Two starting situation where created for the simulation. These starting situations consisted of the robot in the corner at the bottom left and square obstacles of varying sizes placed around the field, see Figure~\ref{fig:start1} and Figure~\ref{fig:start2}.
+Two starting situation were created for the simulation. These starting situations consisted of the robot in the corner at the bottom left and square obstacles of varying sizes placed around the field, see Figure~\ref{fig:start1} and Figure~\ref{fig:start2}.
 
 \begin{figure}[!ht]
   \centering
@@ -492,7 +492,7 @@ Two starting situation where created for the simulation. These starting situatio
   \label{fig:start2}
 \end{figure}
 
-The experiment counts the number of collisions the robot makes with the obstacles and the walls. The simulation stops when 5000 ticks have been completed or when the robot gets stuck somewhere. Ticks where used as a time measurement unit to improve accuracy when the experiment is run on different systems. To collect data on the FLS multiple experiments multiple settings could be changed for each experiment. The settings that could be changed and there possible values were:
+The experiment counts the number of collisions the robot makes with the obstacles and the walls. The simulation stops when 5000 ticks have been completed or when the robot gets stuck somewhere. Ticks were used as a time measurement unit to improve accuracy when the experiment is run on different systems. To collect data on the FLS multiple experiments multiple settings could be changed for each experiment. The settings that could be changed and their possible values were:
 \begin{itemize}
   \item Starting situation: s1 or s2, as seen in Figure~\ref{fig:start1} and Figure~\ref{fig:start2}
   \item Aggregeation method: max or sum
@@ -503,43 +503,7 @@ The experiment counts the number of collisions the robot makes with the obstacle
 All setting combinations are tested, because the simulation and the FLS are discrete each combination only needs one run.
 
 
-% TODO
 \subsection{Results}
-
-
-\section{Discussion}
-Judging from our results, there were two visible problems with the fls.
-
-The first being that, when the speed of the robot increases, the duration of the simulations decreases (the robot gets stuck very early on). This can be explained by the fact that the mfs use a distance in pixels to calculate the closeness of objects. The membership functions don't change based on the speed. The fls also does not have speed as one of it's inputs. This means that the fls has no way to correct for speed. When the robot moves at a higher speed the something that was 'far' for a lower speed might now be reached in one frame.
-
-The follow problem that can be seen is that when the terminate conditions are such that the simulation is only terminated when the robot makes a move that results in a collision, the duration of the simulations is lower in all setups. A reason for this can be the fact that the fls does not look behind it self to check for possible collisions this means that it can be hit from behind or the side by an obstacle.
-
-%TODO
-%\section{Conclusions and Future Work}
-%The conclusion goes here (to be done later).
-
-
-
-
-
-
-
-% conference papers do not normally have an appendix
-
-
-% use section* for acknowledgment
-% \section*{Acknowledgment}
-
-% TODO Use more and diverse references to self-driving cars.
-\nocite{*}
-\bibliographystyle{IEEEtranS}
-\bibliography{mybibfile}
-
-
-\newpage
-
-\section{Appendices}
-
 
 \begin{center}
 \begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
@@ -666,6 +630,43 @@ The follow problem that can be seen is that when the terminate conditions are su
 \captionof{table}{player-speed=10; environment=2; aggregation=sum}
 \label{table:ps10e2asum}
 \end{center}
+
+
+\section{Discussion}
+Judging from our results, there were two visible problems with the fls.
+
+The first being that, when the speed of the robot increases, the duration of the simulations decreases (the robot gets stuck very early on). This can be explained by the fact that the mfs use a distance in pixels to calculate the closeness of objects. The membership functions don't change based on the speed. The fls also does not have speed as one of it's inputs. This means that the fls has no way to correct for speed. When the robot moves at a higher speed the something that was 'far' for a lower speed might now be reached in one frame.
+
+The follow problem that can be seen is that when the terminate conditions are such that the simulation is only terminated when the robot makes a move that results in a collision, the duration of the simulations is lower in all setups. A reason for this can be the fact that the fls does not look behind it self to check for possible collisions this means that it can be hit from behind or the side by an obstacle.
+
+%TODO
+%\section{Conclusions and Future Work}
+%The conclusion goes here (to be done later).
+
+
+
+
+
+
+
+% conference papers do not normally have an appendix
+
+
+% use section* for acknowledgment
+% \section*{Acknowledgment}
+
+% TODO Use more and diverse references to self-driving cars.
+\nocite{*}
+\bibliographystyle{IEEEtranS}
+\bibliography{mybibfile}
+
+
+\newpage
+
+\section{Appendices}
+
+
+
 
 
 \newpage
