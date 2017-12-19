@@ -323,7 +323,7 @@
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
 % TODO Make the title more interesting and informative of the contribution
-\title{Pathfinding with Obstacle Avoidance\\Using Fuzzy Logic}
+\title{Autonomous obstacle avoidance using fuzzy logic}
 
 
 % author names and affiliations
@@ -421,35 +421,62 @@ The paper concludes in noting that, altough most of their tests resulted in a po
 % TODO If you do not have data to learn from you may skip this section. In the design, you can emphasize that the system is based on expert knowledge.
 %\subsection{Data}
 %Most of the data will be personal knowledge. The first versions of membership functions and rules will be created by us. When possible the newer versions of the membership functions and rules will be extrapolated from the test result of the previous evolution of the system.
-% TODO Elaborate. Your own implementation? What libraries? Versions? Urls in footnotes?
 \subsection{Design}
 %The general design of our system is still unknown at this point. As inputs we will use the distances to the nearest objects at several degrees of rotation and the distance and angle to the target location. As outputs, we will use accelleration and degree of rotation of the robot. However, these might all still be subject to change.
-Our Fuzzy Logic System uses three inputs and gives two outputs. The inputs we use are the distance to the nearest object in three different directions: front, front-left and front-right. The output is given in the form of two angles a left angle and a right angle, the robot will move in the direction of the combination of these two angles.\\
-Our input variables have a mix of triangular and trapezoidal membership functions (
-%TODO figures of memberships functions
-). For all three inputs the range (in pixels) and membership functions are equal. The placement of the functions is chosen such that only a very small distance (about the size of the robot) is seen as a small distance, anything above about 5x the robots size is seen as a large distance and in between is a medium amount of distance. The functions have a reasonable amount of overlap since the random obstacle movement in our environment is cause for a decent amount of overlap.\\
-We use a full rulebase of 27 rules for our system (
-%TODO table with rules
-). In general, the rules are chosen such that the robot makes sharper turns if the distance to the objects in front of it is smaller and will always prioritize a left turn over a right turn.\\
+The fuzzy logic system used to control the robot has three inputs and two outputs. The inputs that are used correspond the distances in pixels to the nearest object in three different directions: front, front-left and front-right. Both the output variables are an angle, the angle represent how much the FLS wants to move left and right. The direction the robot will move in is the average angle between the two output values.\\
+The FLS has a complete rule base, consisting of 27 rules.
+%TODO table with rules. 
+%TODO Better explanation of the rules
+In general, the rules are chosen such that the robot makes sharper turns if the distance to the objects in front of it is smaller and will always prioritize a left turn over a right turn.\\
 
 \subsection{Implementation}
 %The two most important parts, the simulation and the Fuzzy Logic System, will be created by us in python (exact algorithms are not yet known).
-We used python to build both the Fuzzy Logic System implementation and the simulated environment. For the simulations we primarily used the pygame package.\\
-\subsubsection{Fuzzy Logic System implementation}
-We implemented a variety of possible membership functions for our FLS implementation. Most of which use standard functions to return membership. For the triangular and trapezoidal membership functions, however, we used a sequence of if-else statements to calculate membership, rather than taking the minimum value from two lines. This way it was easier to make sure we do not accidentally devide by zero.\\
-For our input and output variables, we simply record a name, range and list of membership functions. When calculating the membership, we return a dictionary with all memberships of a datapoint for the membership functions of the variable.\\
-For our rules, we implemented AND and OR rules. AND rules can be calculated using the minimum operation or the algebraic product. OR rules can be calculated using the max operation or the algebraic sum.\\
-% TODO inference/aggregation/defuzzification with pseudocode
-\subsubsection{Simulated Environment}
-The environment our robot moves around in is a box with an amount of obstacles. The obstacles are rectangular in shape and move in a random direction. Every certain amount of timesteps, the direction in which the obstacles move changes in a random new direction.\\
-The robot moves around in this environment at a fixed speed and has to avoid colliding with the obstacles. The change in angle of the robot at every tick is determined by the FLS.\\
-The distance from the robot to an object are determined by raycasting. For each timestep, the robot casts two rays slightly around the desired direction. With this ray, the distance to the nearest object (that includes the walls of the simulation) is determined. The distance in that direction is then the smallest value returned from those two rays. This is done for angles around 0 degrees, 35 degrees and -35 degrees and the distances are passed to the FLS. The FLS then determines a left and right turning degree and the middle of those two angles is taken as the change in directions that the robot follows.
-% TODO maybe pseudocode
-% TODO Link to repo?
-% TODO Put in a footnote
-\subsection{Link to repository}
-% TODO remove underscores from directory and url
-\url{https://github.com/Yelvd/Fuzzy_logic_final_project}
+The project implementations can be divided in to two parts, the Fuzzy Logic System and the simulation\footnote{The code for both can be found here: \url{https://github.com/Yelvd/Fuzzy_logic_final_project}}. Both parts are coded in python\footnote{Python 3.5.2 from \url{www.python.org}}, the following library's where used, numpy\footnote{Numpy 1.11.0 from \url{http://www.numpy.org/}} for mathematical calculations and pygame\footnote{Pygame 1.9.3 from \url{www.pygame.org/}} for visualizing the simulated environment.\\
+
+\subsubsection*{Fuzzy Logic System implementation}
+
+The FLS implementation is an extension from the lab1 python exercise as found on blackboard. The FLS implementation contains a Reasoner class which given the input variables, output variables and rule base for the FLS can calculate the crisp value of the outputs given the input data points.\\
+The following options are available to use in the FLS implementation used in this paper.\\
+
+\textbf{Membership functions:}
+\begin{itemize}
+  \item Trapezoid
+  \item Triangular
+  \item Gaussian
+  \item Bell shaped
+  \item Sigmoidal curve
+\end{itemize}
+
+\textbf{Aggregation methods:}
+\begin{itemize}
+  \item sum
+  \item max
+\end{itemize}
+
+\textbf{Defuzzification methods}
+\begin{itemize}
+  \item Smallest of max(SOM)
+  \item Largest of max(LOM)
+  \item Mean of max(MOM)
+  \item Centroid
+\end{itemize}
+
+\textbf{And/Or methods for rules}
+\begin{itemize}
+  \item Min (AND)
+  \item Prod (AND)
+  \item Max (OR)
+  \item probor (OR)
+\end{itemize}
+
+\hfill\\
+\subsubsection*{Simulated Environment}
+The simulation environment consists of a square field. In this field a variable number of square obstacles and 'players' can be placed. The player movements can be controlled by either using the keyboard or giving it a FLS system to the player. If a FLS is given to a player it cannot be controlled manually.
+All placed obstacles have the ability to make random movements around the field, when this option is turned on the obstacle chooses a random direction and moves in that direction for a given number of frames before picking a new random direction.\\
+
+When a moving object, either a player or an obstacle, tries to make a move which would result in two objects intersecting, this move is not allowed and the object will not move that frame. If this object is an obstacle the obstacle will rotate its moving direction 45 degrees clockwise.\\
+
+When the player object, from now on revert to as robot, has a FLS assigns to it every frame the inputs for the FLS are calculated and given to the Reasoner, the crisp values returned by the FLS are then used to set the direction the robot will move in for that frame. In this paper three inputs are used for the movement of the robot. All inputs correspond to the distance in pixels from the edge of the robot to the next obstacle, which can either be a placed obstacle or the wall. Each input is the distance from a different angle ranging from [-60, 60]. These angles are based on the rotation of the robot, the front-left input uses the [25, 45, 65] degree angles to determine the distance to the closest obstacle, the front-right uses the angles [-60, -45, -25] and the front inputs uses [-10, 10]. From the multiple distance the lowest is given to the FLS. % TODO add picture of rays
 
 \section{Experiments and Results}
 A starting situation was created for the simulation. This starting situation consisted of the robot in the corner at the bottom left and 14 square obstacles of varying sizes placed around the field, see figure~\ref{fig:start}.
