@@ -477,35 +477,30 @@ All placed obstacles have the ability to make random movements around the field,
 
 When a moving object, either a player or an obstacle, tries to make a move which would result in two objects intersecting, this move is not allowed and the object will not move that frame. If this object is an obstacle the obstacle will rotate its moving direction 45 degrees clockwise.\\
 
-When the player object, from now on revert to as robot, has a FLS assigns to it every frame the inputs for the FLS are calculated and given to the Reasoner, the crisp values returned by the FLS are then used to set the direction the robot will move in for that frame. In this paper three inputs are used for the movement of the robot. All inputs correspond to the distance in pixels from the edge of the robot to the next obstacle, which can either be a placed obstacle or the wall. Each input is the distance from a different angle ranging from [-60, 60]. These angles are based on the rotation of the robot, the front-left input uses the [25, 45, 65] degree angles to determine the distance to the closest obstacle, the front-right uses the angles [-60, -45, -25] and the front inputs uses [-10, 10]. From the multiple distance the lowest is given to the FLS. % TODO add picture of rays
+When the player object, from now on revert to as robot, has a FLS assigns to it every frame the inputs for the FLS are calculated and given to the Reasoner, the crisp values returned by the FLS are then used to set the direction the robot will move in for that frame. In this paper three inputs are used for the movement of the robot. All inputs correspond to the distance in pixels from the edge of the robot to the next obstacle, which can either be a placed obstacle or the wall. Each input is the distance from a different angle ranging from [-85, 80]. These angles are based on the rotation of the robot, the front-left input uses the [25, 45, 65, 85] degree angles to determine the distance to the closest obstacle, the front-right uses the angles [-60, -45, -25, -85] and the front inputs uses [-15, -5, 5, 15]. From the multiple distance the lowest is given to the FLS as input, the minimum value for multiple angles is used to give the robot a 'broader' range of vision % TODO add picture of rays
 
 \section{Experiments and Results}
-A starting situation was created for the simulation. This starting situation consisted of the robot in the corner at the bottom left and 14 square obstacles of varying sizes placed around the field, see figure~\ref{fig:start}.
+Two starting situation where created for the simulation. These starting situations consisted of the robot in the corner at the bottom left and square obstacles of varying sizes placed around the field, see Figure~\ref{fig:start1} and Figure~\ref{fig:start2}.
 
 \begin{figure}[!ht]
   \centering
   \includegraphics[scale=0.3]{./figs/StartSetup.png}
-  \caption{starting situation for the simulation}
-  \label{fig:start}
+  \caption{starting situation 1 for the simulation}
+  \label{fig:start1}
+  \includegraphics[scale=0.3]{./figs/StartSetup2.png}
+  \caption{starting situation 2 for the simulation}
+  \label{fig:start2}
 \end{figure}
 
-% TODO Grammar
-% TODO This sounds like implementation. Experiments should describe how many experiments you ran, what the parameters per experiment were, etc.
-\noindent
-The obstacle move each in there own random direction, after 30 frames they pick a new random direction. When colliding with an other object or the wall the obstacle rotate there direction vector 45 degrees clockwise each frame until they can move again. A simulation terminates when the robot collides with an obstacle or the wall. The data that was collected is the length of a simulation in frames.
-Frames where chosen as measurement unit instead of time since this allows us to speed up our simulations by unlocking the number of frames per second, the data is also more reliable because it is changed if the computer the experiment is run on cannot keep up with the simulation.\\
-
-The following sets of speeds where chosen:
+The experiment counts the number of collisions the robot makes with the obstacles and the walls. The simulation stops when 5000 ticks have been completed or when the robot gets stuck somewhere. Ticks where used as a time measurement unit to improve accuracy when the experiment is run on different systems. To collect data on the FLS multiple experiments multiple settings could be changed for each experiment. The settings that could be changed and there possible values were:
 \begin{itemize}
-  \item Player: 2 pixels/frame, Obstacle: 1 pixels/frame
-  \item Player: 2 pixels/frame, Obstacle: 2 pixels/frame
-  \item Player: 2 pixels/frame, Obstacle: 4 pixels/frame
-  \item Player: 6 pixels/frame, Obstacle: 6 pixels/frame
+  \item Starting situation: s1 or s2, as seen in Figure~\ref{fig:start1} and Figure~\ref{fig:start2}
+  \item Aggregeation method: max or sum
+  \item Defuzzification method: mom or centroid
 \end{itemize}
 
-% TODO It looks like your experiments focus mainly on the speed parameters. However, also consider the parameters of your FLS.
-\noindent
-For each set of speeds two different types of terminate conditions where used. The first one being that the simulation terminates if the player makes a move that result in a collision with either an obstacle or the wall, on the other test the simulation terminated when the player collided with an obstacle or wall or when an obstacle made a move that resulted in a collision. For each set of speeds both termination conditions where run 20 times. The average frames until termination is reported below.
+All setting combinations are tested, because the simulation and the FLS are discrete each combination only needs one run.
+
 
 % TODO Good that you give results. They are not very clear though. Try to run multiple experiments and show your results more clearly, in tables or figures.
 \subsection{Results}
