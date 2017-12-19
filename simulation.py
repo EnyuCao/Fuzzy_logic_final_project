@@ -9,16 +9,18 @@ screenWidth = 600
 screenHeight = 500
 reset = False
 
+# TODO remove?
 # (2, 2) (2, 1)(2, 4)(6, 6)
+TestCollisionObs = False
+N_ObsCol = 0
+
+N_tests = 20
+max_ticks = 1000
+g_testing = True
 g_obstSpeed = 0
 g_playerSpeed = 5
-TestCollisionObs = False
-N_tests = 20
-N_ObsCol = 0
-g_testing = False
-prev_data = []
-
 N_collisions = 0
+prev_data = []
 
 def rotate2D(M, phi):
     R = np.array([
@@ -409,6 +411,7 @@ class Simulation():
         for player in self.players:
             player.draw(screen)
 
+# TODO remove?
 def main_testing(width, height):
     """ 
     Main function used for testing
@@ -445,6 +448,22 @@ def main_testing(width, height):
         print('Number of collisions by obstacle: %i' % N_ObsCol)
 
 
+def test_collisions():
+    global done, reset, N_tests, N_collisions, max_ticks
+    n = 0
+    while not done and n < N_tests:
+        reset = False
+        ticks = 0
+        N_collisions = 0
+        active_scene = Simulation()
+        while not (reset or done or ticks >= max_ticks):
+            filteredEvents = filterEvents()
+            active_scene.handleInput(*filteredEvents)
+            active_scene.update()
+            ticks += 1
+        print(ticks, N_collisions)
+        n += 1
+
 def main(width, height):
     global done
     screen = pygame.display.set_mode((width, height))
@@ -464,6 +483,7 @@ def main(width, height):
 
 if __name__ == "__main__":
     if g_testing:
-        main_testing(screenWidth, screenHeight)
+#        main_testing(screenWidth, screenHeight)
+        test_collisions()
     else:
         main(screenWidth, screenHeight)
