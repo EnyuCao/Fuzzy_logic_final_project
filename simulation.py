@@ -9,15 +9,18 @@ screenWidth = 600
 screenHeight = 500
 reset = False
 
+# TODO remove?
 # (2, 2) (2, 1)(2, 4)(6, 6)
+TestCollisionObs = False
+N_ObsCol = 0
+
+N_tests = 1
+max_ticks = 1000
+g_testing = True
 g_obstSpeed = 0
 g_playerSpeed = 5
-TestCollisionObs = False
-N_tests = 20
-N_ObsCol = 0
-g_testing = False
-
 N_collisions = 0
+prev_data = []
 
 def rotate2D(M, phi):
     R = np.array([
@@ -132,7 +135,7 @@ class Player(Unit):
                 self.phi = (self.phi+.5*np.pi)%(2*np.pi)
 
     def update(self, objects):
-        global reset, N_ObsCol, N_collisions
+        global reset, N_ObsCol, N_collisions, prev_data
 
         # TODO remove later
         self.vision_lines = []
@@ -189,6 +192,13 @@ class Player(Unit):
             print("Distance:", self.get_distance(objects, 0/180.*np.pi))
             self.tmp = False
 
+        if prev_data != []:
+            if abs(self.x - prev_data[0]) < self.speed/100. \
+            and abs(self.y - prev_data[1]) < self.speed/100. \
+            and abs(self.phi - prev_data[2]) < 2*np.pi/100.:
+                reset = True
+        prev_data = [self.x, self.y, self.phi]
+
     def checkCollsion_rect(self, rect):
         """ Checks for collsion with the given rect """
         return self.rect.colliderect(rect)
@@ -203,13 +213,9 @@ class Player(Unit):
                     self.vision_lines[i][0],
                     self.vision_lines[i][1]
                 )
-        R = np.array([
-            [np.cos(self.phi),-np.sin(self.phi)],
-            [np.sin(self.phi),np.cos(self.phi)]]
-        )
         shift = 0.5 * self.size
         coords_O = np.array([[-1,-1],[-1,1],[1,1],[1,-1]]) * shift
-        coords_O_R = coords_O.dot(R)
+        coords_O_R = rotate2D(coords_O, self.phi)
         coords = (coords_O_R + shift) + np.array([self.x,self.y])
         pygame.draw.polygon(screen, self.color, coords)
 
@@ -336,6 +342,22 @@ class Simulation():
         self.players = []
         self.units = []
 
+        # TODO remove later
+        first_Objs = [
+                (100, 100, 40, 40),
+                (100, 200, 40, 40),
+                (100, 400, 40, 40),
+                (250, 250, 30, 30),
+                (200, 200, 30, 30),
+                (200, 100, 30, 30),
+                (200, 300, 30, 30),
+                (200, 400, 30, 30),
+                (300,  50, 50, 50),
+                (300, 300, 50, 50),
+                (300, 400, 50, 50),
+                (400,  60, 80, 80),
+                (400, 200, 40, 40),
+                (400, 400, 60, 60)]
         rect_Objs = [
                 (100, 100, 40, 40),
                 (100, 200, 40, 40),
@@ -385,6 +407,7 @@ class Simulation():
         for player in self.players:
             player.draw(screen)
 
+# TODO remove?
 def main_testing(width, height):
     """ 
     Main function used for testing
@@ -421,6 +444,30 @@ def main_testing(width, height):
         print('Number of collisions by obstacle: %i' % N_ObsCol)
 
 
+def test_collisions():
+    global done, reset, N_tests, N_collisions, max_ticks
+    n = 0
+    print('[1] number of ticks')
+    print('[2] number of collisions')
+    print('[3] [1]/[2]')
+    print('[4] [2]/[1]')
+    while not done and n < N_tests:
+        reset = False
+        ticks = 0
+        N_collisions = 0
+        active_scene = Simulation()
+        while not (reset or done or ticks >= max_ticks):
+            filteredEvents = filterEvents()
+            active_scene.handleInput(*filteredEvents)
+            active_scene.update()
+            ticks += 1
+        print()
+        print(ticks)
+        print(N_collisions)
+        print(ticks/float(N_collisions))
+        print(N_collisions/float(ticks))
+        n += 1
+
 def main(width, height):
     global done
     screen = pygame.display.set_mode((width, height))
@@ -440,6 +487,7 @@ def main(width, height):
 
 if __name__ == "__main__":
     if g_testing:
-        main_testing(screenWidth, screenHeight)
+#        main_testing(screenWidth, screenHeight)
+        test_collisions()
     else:
         main(screenWidth, screenHeight)
