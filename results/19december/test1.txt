@@ -1,0 +1,216 @@
+rect_Objs = [
+    (100, 100, 40, 40),
+    (100, 200, 40, 40),
+    (100, 400, 40, 40),
+    (250, 250, 30, 30),
+    (200, 200, 30, 30),
+    (200, 100, 30, 30),
+    (50, 300, 30, 30),
+    (500, 300, 30, 30),
+    (200, 400, 30, 30),
+    (300,  50, 50, 50),
+    (300, 300, 50, 50),
+    (300, 400, 50, 50),
+    (400,  60, 80, 80),
+    (400, 200, 40, 40),
+    (400, 400, 60, 60)
+]
+
+
+RESULT ORDER:
+[1] number of ticks
+[2] number of collisions
+[3] ([1]+1)/([2]+1)
+[4] ([2]+1)/([1]+1)
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = som
+RESULTS
+286
+3
+71.75
+0.013937282229965157
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = mom
+RESULTS
+411
+3
+103.0
+0.009708737864077669
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = lom
+RESULTS
+1023
+2
+341.3333333333333
+0.0029296875
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = centroid
+RESULTS
+61
+1
+31.0
+0.03225806451612903
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = som
+RESULTS
+69
+1
+35.0
+0.02857142857142857
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = mom
+RESULTS
+449
+1
+225.0
+0.0044444444444444444
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = lom
+RESULTS
+62
+1
+31.5
+0.031746031746031744
+
+CURRENT PARAMETERS:
+player_speed = 5
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = centroid
+RESULTS
+61
+1
+31.0
+0.03225806451612903
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = som
+RESULTS
+14
+1
+7.5
+0.13333333333333333
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = mom
+RESULTS
+14
+1
+7.5
+0.13333333333333333
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = lom
+RESULTS
+14
+1
+7.5
+0.13333333333333333
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = max
+defuzzification = centroid
+RESULTS
+32
+1
+16.5
+0.06060606060606061
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = som
+RESULTS
+33
+1
+17.0
+0.058823529411764705
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = mom
+RESULTS
+32
+1
+16.5
+0.06060606060606061
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = lom
+RESULTS
+15
+1
+8.0
+0.125
+
+CURRENT PARAMETERS:
+player_speed = 10
+dist_range = [0, 5, 25, 70, 1000]
+phi_range = [ 0.          0.09817477  0.19634954  0.29452431  0.39269908]
+aggregation = sum
+defuzzification = centroid
+RESULTS
+32
+1
+16.5
+0.06060606060606061

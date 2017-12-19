@@ -16,8 +16,8 @@ N_ObsCol = 0
 reset = False
 
 N_tests = 1
-max_ticks = 1000
-g_testing = False
+max_ticks = 5000
+g_testing = True
 g_obstSpeed = 0
 g_playerSpeed = 5
 N_collisions = 0
@@ -142,24 +142,22 @@ class Player(Unit):
 
         if self.fls:
             df = min(
-                self.get_distance(objects, -20/180.*np.pi),
-                self.get_distance(objects, -10/180.*np.pi),
-                self.get_distance(objects, 10/180.*np.pi),
-                self.get_distance(objects, 20/180.*np.pi)
+                self.get_distance(objects, -15/180.*np.pi),
+                self.get_distance(objects, -5/180.*np.pi),
+                self.get_distance(objects, 5/180.*np.pi),
+                self.get_distance(objects, 15/180.*np.pi)
             )
             dl = min(
                 self.get_distance(objects, 25/180.*np.pi),
                 self.get_distance(objects, 45/180.*np.pi),
                 self.get_distance(objects, 65/180.*np.pi),
                 self.get_distance(objects, 85/180.*np.pi),
-                self.get_distance(objects, 105/180.*np.pi)
             )
             dr = min(
                 self.get_distance(objects, -25/180.*np.pi),
                 self.get_distance(objects, -45/180.*np.pi),
                 self.get_distance(objects, -65/180.*np.pi),
                 self.get_distance(objects, -85/180.*np.pi),
-                self.get_distance(objects, -105/180.*np.pi)
             )
 
             datapoint = {'distf':df, 'distl':dl, 'distr':dr}
@@ -368,7 +366,7 @@ class Simulation():
                 (400,  60, 80, 80),
                 (400, 200, 40, 40),
                 (400, 400, 60, 60)]
-        rect_Objs = [
+        rect_Objs2 = [
                 (100, 100, 40, 40),
                 (100, 200, 40, 40),
                 (100, 400, 40, 40),
