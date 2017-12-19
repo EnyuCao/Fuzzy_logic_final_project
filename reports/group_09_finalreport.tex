@@ -467,7 +467,7 @@ All placed obstacles have the ability to make random movements around the field,
 
 When a moving object, either a player or an obstacle, tries to make a move which would result in two objects intersecting, this move is not allowed and the object will not move that frame. If this object is an obstacle the obstacle will rotate its moving direction 45 degrees clockwise.\\
 
-When the player object, from now on revert to as robot, has a FLS assigns to it every frame the inputs for the FLS are calculated and given to the Reasoner, the crisp values returned by the FLS are then used to set the direction the robot will move in for that frame. In this paper three inputs are used for the movement of the robot. All inputs correspond to the distance in pixels from the edge of the robot to the next obstacle, which can either be a placed obstacle or the wall. Each input is the distance from a different angle ranging from [-85, 80]. These angles are based on the rotation of the robot, the front-left input uses the [25, 45, 65, 85] degree angles to determine the distance to the closest obstacle, the front-right uses the angles [-60, -45, -25, -85] and the front inputs uses [-15, -5, 5, 15]. From the multiple distance the lowest is given to the FLS as input, the minimum value for multiple angles is used to give the robot a 'broader' range of vision % TODO add picture of rays
+When the player object, from now on revert to as robot, has a FLS assigns to it every frame the inputs for the FLS are calculated and given to the Reasoner, the crisp values returned by the FLS are then used to set the direction the robot will move in for that frame. In this paper three inputs are used for the movement of the robot. All inputs correspond to the distance in pixels from the edge of the robot to the next obstacle, which can either be a placed obstacle or the wall. Each input is the distance from a different angle ranging from [-85, 80]. These angles are based on the rotation of the robot, the front-left input uses the [25, 45, 65, 85] degree angles to determine the distance to the closest obstacle, the front-right uses the angles [-60, -45, -25, -85] and the front inputs uses [-15, -5, 5, 15]. From the multiple distance the lowest is given to the FLS as input, the minimum value for multiple angles is used to give the robot a 'broader' range of vision. The robot has a speed, which is set in the beginning of the simulation, it will constantly move at this speed unless it is colliding with something. The FLS can only choose the direction of the robot.
 
 \section{Experiments and Results}
 Two starting situation where created for the simulation. These starting situations consisted of the robot in the corner at the bottom left and square obstacles of varying sizes placed around the field, see Figure~\ref{fig:start1} and Figure~\ref{fig:start2}.
@@ -486,7 +486,7 @@ The experiment counts the number of collisions the robot makes with the obstacle
 \begin{itemize}
   \item Starting situation: s1 or s2, as seen in Figure~\ref{fig:start1} and Figure~\ref{fig:start2}
   \item Aggregeation method: max or sum
-  \item Defuzzification method: mom or centroid
+  \item Defuzzification method: lom, som, mom or centroid
 \end{itemize}
 
 All setting combinations are tested, because the simulation and the FLS are discrete each combination only needs one run.
@@ -494,11 +494,7 @@ All setting combinations are tested, because the simulation and the FLS are disc
 
 % TODO Good that you give results. They are not very clear though. Try to run multiple experiments and show your results more clearly, in tables or figures.
 \subsection{Results}
-Obstaclecollision T (2, 1: 1472.4) (2,2: 496.5) (2,4: 152.55) (6,6:75.25)\\
-Obstaclecollision F (2, 1: 1348.75) (2,2: 1118.8) (2,4: 270.6) (6,6: 157.45)\\
 
-% TODO Now how do we evaluate whether the system is doing good or not? And how does performance improve as we change parameter settings?
-We can see that in most cases, the collisionoccurence is about the same, irregardless of counting obstacles moving into the player (from behind) or not. Ther is one large outlier where obstacles have the same slow speed as the playerobject, so it seems the playerobject is still quite adapt at moving out of harms way, but is much worse at finding positions where obstacles won't hit it from unwatched angles.
 
 \section{Discussion}
 From the data there where two visible problems with the fls.\\
@@ -664,8 +660,10 @@ The follow problem that can be seen is that when the terminate conditions are su
 
 %TODO
 \section{Workload Distribution}
-\subsection{Jelle}
-The goal was that every person in the team helped on each part of the project and more importantly understood every part of the project. Although I did not work evenly on all parts I did contribute every where and am pretty confidant that I know how every part of the project works. Most of my work can be found in the simulation and the .fis file parser, which was not discussed in the paper. The .fis file parser I made to have a way to store our FLS, it is a Python script that can read and parse a .fis file, the same files that are generated by Matlab's fuzzy logic toolbox, and create an instance of our FLS with that. Most of my work can be found in the simulation, I created the foundation where the others worked on.\\
+\subsection*{Jelle van Dijk: 10989048}
+The goal was that every person in the team helped on each part of the project and more importantly understood every part of the project. Although I did not work evenly on all parts I did contribute every where and am pretty confidant that I know how every part of the project works. Most of my work can be found in the simulation and the .fis file parser, which was not discussed in the paper. The .fis file parser I made to have a way to store our FLS, it is a Python script that can read and parse a .fis file, the same files that are generated by Matlab's fuzzy logic toolbox, and create an instance of our FLS with that. Most of my work can be found in the simulation, I created the foundation where the others worked on.
+
+
 I learned a lot from this project, allot of the theory that was given to us in the classes was turned into something that work during this project. Most of all I am happy that we got a working system, although it is not perfect it is a good attempt.
 
 
