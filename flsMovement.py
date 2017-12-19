@@ -18,6 +18,7 @@ def angle_between(p1, p2):
     return (ang1 - ang2) % (2 * np.pi)
 
 
+# Used for an older version of the FLS, outdated
 def calcDir(dl, dr, df, db, phi):
     forwFls = parseFisFile(fFis)
     sideFls = parseFisFile(sFis)
@@ -41,6 +42,7 @@ def calcDir(dl, dr, df, db, phi):
 
 
 def create_player_fls_from_fis(filename):
+    """ uses the fisParser to create a Reasoner """
     sysDict, inputs, outputs, rulebase = parseFisFile(filename)
     # create reasoner and return inference function
     reasoner = FLS.Reasoner(rulebase, inputs, outputs, 201,
@@ -48,9 +50,12 @@ def create_player_fls_from_fis(filename):
     return reasoner.inference
 
 
-def create_player_fls(
-    r_dist, r_phi, n_points=201, aggregation='max', defuzzification='lom'
-):
+def create_player_fls(r_dist, r_phi, n_points=201,
+                      aggregation='max', defuzzification='lom'):
+    """
+    Creates the FLS used when testing.
+    The Created FLS is the same as in ./fls/V1.fis
+    """
     # create inputs
     mfs_dist = [
         FLS.TrapezoidalMF('low', r_dist[0],r_dist[0],r_dist[1],r_dist[2]),
@@ -61,6 +66,7 @@ def create_player_fls(
     distl = FLS.Input('distl', (r_dist[0], r_dist[-1]), mfs_dist)
     distr = FLS.Input('distr', (r_dist[0], r_dist[-1]), mfs_dist)
     inputs = [distf, distl, distr]
+
     # create outputs
     mfs_phi = [
         FLS.TrapezoidalMF('low', r_phi[0],r_phi[0],r_phi[1],r_phi[2]),
@@ -70,6 +76,7 @@ def create_player_fls(
     phil = FLS.Output('phil', (r_phi[0], r_phi[-1]), mfs_phi)
     phir = FLS.Output('phir', (r_phi[0], r_phi[-1]), mfs_phi)
     outputs = [phil, phir]
+
     # create rulebase
     rules = [
         FLS.Rule(
@@ -214,4 +221,3 @@ def create_player_fls(
         rulebase, inputs, outputs, n_points, aggregation, defuzzification
     )
     return reasoner.inference
-
