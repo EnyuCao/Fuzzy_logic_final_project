@@ -198,6 +198,7 @@
 %
 \usepackage{array}
 \usepackage{multirow}
+\usepackage{caption}
 % Frank Mittelbach's and David Carlisle's array.sty patches and improves
 % the standard LaTeX2e array and tabular environments to provide better
 % appearance and additional user controls. As the default LaTeX2e table
@@ -526,16 +527,6 @@ The follow problem that can be seen is that when the terminate conditions are su
 
 
 
-%\begin{center}
-%\begin{tabular}{ | m{5em} | m{5em} | m{5em} | } 
-%\hline
- %& \multicolumn{2}{c|}{R} \\ 
-%\hline
-%\multirow{2}{*}{4} & cell5 & cell6 \\ 
- %& cell8 & cell9 \\ 
-%\hline
-%\end{tabular}
-%\end{center}
 
 
 
@@ -550,6 +541,145 @@ The follow problem that can be seen is that when the terminate conditions are su
 \nocite{*}
 \bibliographystyle{IEEEtranS}
 \bibliography{mybibfile}
+
+
+\newpage
+
+\section{Appendices}
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 286 & 3 & 0.01394 \\
+ & \textit{mom} & 411 & 3 & 0.00971 \\
+ & \textit{lom} & 1023 & 2 & 0.00293 \\
+ & \textit{centroid} & 61 & 1 & 0.03226 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=1; aggregation=max}
+\label{table:ps5e1amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 69 & 1 & 0.02857 \\
+ & \textit{mom} & 449 & 1 & 0.00444 \\
+ & \textit{lom} & 62 & 1 & 0.03175 \\
+ & \textit{centroid} & 61 & 1 & 0.03226 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=1; aggregation=sum}
+\label{table:ps5e1asum}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 263 & 1 & 0.00758 \\
+ & \textit{mom} & 863 & 1 & 0.00231 \\
+ & \textit{lom} & 292 & 1 & 0.00682 \\
+ & \textit{centroid} & 156 & 1 & 0.01274 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=2; aggregation=max}
+\label{table:ps5e2amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 549 & 3 & 0.00727 \\
+ & \textit{mom} & 1804 & 7 & 0.00443 \\
+ & \textit{lom} & 68 & 1 & 0.02899 \\
+ & \textit{centroid} & 5000 & 16 & 0.00340 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=2; aggregation=sum}
+\label{table:ps5e2asum}
+\end{center}
+
+
+
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 14 & 1 & 0.13333 \\
+ & \textit{mom} & 14 & 1 & 0.13333 \\
+ & \textit{lom} & 14 & 1 & 0.13333 \\
+ & \textit{centroid} & 32 & 1 & 0.06061 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=1; aggregation=max}
+\label{table:ps10e1amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 33 & 1 & 0.05882 \\
+ & \textit{mom} & 32 & 1 & 0.06061 \\
+ & \textit{lom} & 15 & 1 & 0.12500 \\
+ & \textit{centroid} & 32 & 1 & 0.06061 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=1; aggregation=sum}
+\label{table:ps10e1asum}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 72 & 1 & 0.02740 \\
+ & \textit{mom} & 117 & 3 & 0.03390 \\
+ & \textit{lom} & 70 & 1 & 0.02817 \\
+ & \textit{centroid} & 24 & 1 & 0.08000 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=2; aggregation=max}
+\label{table:ps10e2amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 72 & 1 & 0.02740 \\
+ & \textit{mom} & 24 & 1 & 0.08000 \\
+ & \textit{lom} & 35 & 1 & 0.05556 \\
+ & \textit{centroid} & 24 & 1 & 0.08000 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=2; aggregation=sum}
+\label{table:ps10e2asum}
+\end{center}
+
+
+\newpage
+
+%TODO
+\section{Workload Distribution}
+
 
 
 % that's all folks
