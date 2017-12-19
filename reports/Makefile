@@ -1,4 +1,4 @@
-FNAME?=group_09_milestone2
+FNAME?=group_09_finalreport
 BNAME?=mybibfile
 
 pdf: $(FNAME).tex $(BNAME).bib
