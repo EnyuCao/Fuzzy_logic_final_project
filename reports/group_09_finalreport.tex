@@ -424,10 +424,20 @@ The paper concludes in noting that, although most of their tests resulted in a p
 %The general design of our system is still unknown at this point. As inputs we will use the distances to the nearest objects at several degrees of rotation and the distance and angle to the target location. As outputs, we will use accelleration and degree of rotation of the robot. However, these might all still be subject to change.
 The fuzzy logic system used to control the robot has three inputs and two outputs. The inputs that are used correspond the distances in pixels to the nearest object in three different directions: front, front-left and front-right. Both the output variables are an angle, the angle represent how much the FLS wants to move left and right. The direction the robot will move in is the average angle between the two output values.
 
-%TODO table with rules. 
-%TODO Better explanation of the rules
-The FLS has a complete rule base, consisting of 27 rules.
-In general, the rules are chosen such that the robot makes sharper turns if the distance to the objects in front of it is smaller and will always prioritize a left turn over a right turn.
+The FLS has a complete rule base, consisting of 27 rules. The rules are chosen such that the robot moves left or right if the distance to the other side becomes to small. The rules favor a left turn over a right one, meaning that if the distance to the left and to the right are equal the system moves left. 
+
+The three input variables all have the same membership functions. Consisting of the following meberships functions\\
+low = trapezoid: [-1 -1 5 25]\\
+medium = triangle: [5 25 70]\\
+high = trapezoid: [25 70 1000 1000]\\
+The input variables right most membership function goes to a 1000 because that is more then the maximum distance which can be measured in the created simulation.
+
+The two output variables also have the same membership functions:\\
+low' = trapmf: [0 0 0.09817477 0.19634954]\\
+medium' = trimf: [0.09817477 0.19634954 0.29452431]\\
+high = trapmf: [0.19634954 0.29452431 0.4 0.4]\\
+The values of the output membership functions are angles in radials.
+
 
 \subsection{Implementation}
 %The two most important parts, the simulation and the Fuzzy Logic System, will be created by us in python (exact algorithms are not yet known).
