@@ -16,6 +16,7 @@ TestCollisionObs = False
 N_tests = 20
 N_ObsCol = 0
 g_testing = False
+prev_data = []
 
 N_collisions = 0
 
@@ -132,7 +133,7 @@ class Player(Unit):
                 self.phi = (self.phi+.5*np.pi)%(2*np.pi)
 
     def update(self, objects):
-        global reset, N_ObsCol, N_collisions
+        global reset, N_ObsCol, N_collisions, prev_data
 
         # TODO remove later
         self.vision_lines = []
@@ -188,6 +189,14 @@ class Player(Unit):
         if self.tmp:
             print("Distance:", self.get_distance(objects, 0/180.*np.pi))
             self.tmp = False
+
+        if prev_data != []:
+            if abs(self.x - prev_data[0]) < self.speed/100. \
+            and abs(self.y - prev_data[1]) < self.speed/100. \
+            and abs(self.phi - prev_data[2]) < 2*np.pi/100.:
+                reset = True
+        prev_data = [self.x, self.y, self.phi]
+        print(reset)
 
     def checkCollsion_rect(self, rect):
         """ Checks for collsion with the given rect """
@@ -336,6 +345,22 @@ class Simulation():
         self.players = []
         self.units = []
 
+        # TODO remove later
+        first_Objs = [
+                (100, 100, 40, 40),
+                (100, 200, 40, 40),
+                (100, 400, 40, 40),
+                (250, 250, 30, 30),
+                (200, 200, 30, 30),
+                (200, 100, 30, 30),
+                (200, 300, 30, 30),
+                (200, 400, 30, 30),
+                (300,  50, 50, 50),
+                (300, 300, 50, 50),
+                (300, 400, 50, 50),
+                (400,  60, 80, 80),
+                (400, 200, 40, 40),
+                (400, 400, 60, 60)]
         rect_Objs = [
                 (100, 100, 40, 40),
                 (100, 200, 40, 40),
