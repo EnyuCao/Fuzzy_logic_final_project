@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pygame
 import numpy as np
-from flsMovement import calcDir, create_player_fls
+from flsMovement import calcDir, create_player_fls, create_player_fls_from_fis
 
 pygame.init()
 done = False
@@ -377,7 +377,11 @@ class Simulation():
         for x, y, w, h in rect_Objs:
             self.units.append(Obstacle_rect(x, y, w, h, speed=g_obstSpeed))
 
-        fls = create_player_fls('./fls/V1.fis')
+#TODO remove
+#        fls = create_player_fls_from_fis('./fls/V1.fis')
+        dist_range = [0,5,25,70,1000]
+        phi_range = np.array(range(5))*np.pi/32
+        fls = create_player_fls(dist_range, phi_range)
         self.players = [
             Player(20, 460, 20, g_playerSpeed, fls)
         ]
@@ -447,26 +451,53 @@ def main_testing(width, height):
 def test_collisions():
     global done, reset, N_tests, N_collisions, max_ticks
     n = 0
+    player_speeds = [5, 10]
+    dist_ranges = [[0,5,25,70,1000]]
+    phi_ranges = [np.array(range(5))*np.pi/32]
+    aggregations = ['max', 'sum']
+    defuzzifications = ['som', 'mom', 'lom', 'centroid']
+    print('RESULT ORDER:')
     print('[1] number of ticks')
     print('[2] number of collisions')
-    print('[3] [1]/[2]')
-    print('[4] [2]/[1]')
+    print('[3] ([1]+1)/([2]+1)')
+    print('[4] ([2]+1)/([1]+1)')
     while not done and n < N_tests:
-        reset = False
-        ticks = 0
-        N_collisions = 0
-        active_scene = Simulation()
-        while not (reset or done or ticks >= max_ticks):
-            filteredEvents = filterEvents()
-            active_scene.handleInput(*filteredEvents)
-            active_scene.update()
-            ticks += 1
-        print()
-        print(ticks)
-        print(N_collisions)
-        print(ticks/float(N_collisions))
-        print(N_collisions/float(ticks))
-        n += 1
+        for player_speed in player_speeds:
+            for dist_range in dist_ranges:
+                for phi_range in phi_ranges:
+                    for aggregation in aggregations:
+                        for defuzzification in defuzzifications:
+                            print()
+                            print('CURRENT PARAMETERS:')
+                            print('player_speed = ' + str(player_speed))
+                            print('dist_range = ' + str(dist_range))
+                            print('phi_range = ' + str(phi_range))
+                            print('aggregation = ' + str(aggregation))
+                            print('defuzzification = ' + str(defuzzification))
+                            reset = False
+                            ticks = 0
+                            N_collisions = 0
+                            active_scene = Simulation()
+                            for player in active_scene.players:
+                                player.speed = player_speed
+                                player.fls = create_player_fls(
+                                    dist_range,
+                                    phi_range,
+                                    aggregation=aggregation,
+                                    defuzzification=defuzzification
+                                )
+                            while not (reset or done or ticks >= max_ticks):
+                                filteredEvents = filterEvents()
+                                active_scene.handleInput(*filteredEvents)
+                                active_scene.update()
+                                ticks += 1
+                            print('RESULTS')
+                            print(ticks)
+                            print(N_collisions)
+                            print((ticks+1)/float(N_collisions+1))
+                            print((N_collisions+1)/float(ticks+1))
+                            n += 1
+    return None
 
 def main(width, height):
     global done

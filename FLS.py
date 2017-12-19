@@ -273,7 +273,7 @@ class Reasoner:
                 continue
 
             # determine relevant mf range
-            start, end = output.r
+            end, start = output.r
             for mf_name in fs_dict[output.name].keys():
                 mf = output.get_mf(mf_name)
                 if mf.start is not None:
