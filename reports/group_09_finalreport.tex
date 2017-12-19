@@ -356,7 +356,6 @@ Student ID: 10523626
 \maketitle
 
 
-% TODO red lines from feedback 1
 % TODO yellow marked areas from feedback 2
 
 
@@ -394,7 +393,7 @@ The goal of this project is to create and design a FLS that can guide a robot th
 There is already a lot of literature about trying to make a robot traverse an environment using fuzzy logic. In this section, we will briefly discuss three papers that are relevant to our problem.
 
 %\subsection{Artificial Neural Fuzzy Logic Algorithm for Robot Path Finding (X. Bajrami; A. D\"ermaku; N. Demaku)}
-In ``Artificial Neural Fuzzy Logic Algorithm for Robot Path Finding'' \cite{bajrami2015artificial}, X. Bajrami, A. D\"ermaku and N. Demaku create and compare two fuzzy logic implementations to guide a robot from point A to point B in a simulated environment with obstacles.\\
+In \cite{bajrami2015artificial}, X. Bajrami et al. create and compare two fuzzy logic implementations to guide a robot through a simulated environment with obstacles.\\
 The first implementation uses a combination of FLSs with mamdani-type inferrence and handmade rulebases and membership functions to guide the robot. The input (distances to closest objects and goal, angle towards goal and preferred turn) is used to determine acceleration levels for the left and right wheels of the robot for different objectives (like obstacle avoidance) and to determine different weights for those objectives.\\
 The second implementation used an FLS with a Sugeno-type inference system, where the membership functions were trained using a neuro-adaptive learning method.\\
 After running tests in a simulated environment, the two implementations were compared.\\
