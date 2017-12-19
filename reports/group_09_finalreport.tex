@@ -643,15 +643,23 @@ All setting combinations are tested, because the simulation and the FLS are disc
 
 
 \section{Discussion}
-Judging from our results, there were two visible problems with the fls.
+Judging from our results, there were two visible problems with our FLS.
 
-The first being that, when the speed of the robot increases, the duration of the simulations decreases (the robot gets stuck very early on). This can be explained by the fact that the mfs use a distance in pixels to calculate the closeness of objects. The membership functions don't change based on the speed. The fls also does not have speed as one of it's inputs. This means that the fls has no way to correct for speed. When the robot moves at a higher speed the something that was 'far' for a lower speed might now be reached in one frame.
+The first being that the robot seems to get stuck very easily. All results in the tables shown in the results section, except for one result in table \ref{table:ps5e2asum} have the simulation shut down before the maximum number of ticks (5000) has passed. Moreover, all results, except for two show that the robot got stuck before 1000 ticks passed.
 
-The follow problem that can be seen is that when the terminate conditions are such that the simulation is only terminated when the robot makes a move that results in a collision, the duration of the simulations is lower in all setups. A reason for this can be the fact that the fls does not look behind it self to check for possible collisions this means that it can be hit from behind or the side by an obstacle.
+Furthermore, the tables show that the robot gets stuck at a small amount of collisions. Most of the time the first collision the robot has with an object makes it get stuck. This is yet another sign that the robot gets stuck on collisions easily.
+
+This behaviour could probably be explained by a combination of an insufficient amount of infromation that is provided to the robot and FLS-rules that are suboptimal. The rules might make the robot ill-equiped to recover from a collision (currently the robot turns left as much as possible when encountering very nearby objects). However, the information provided to the robot might be the biggest problem. The robot currently only sees objects within a 170 degree window in front of it. As soon as an object leaves that window, the robot will act as if it does not exists. This could cause it to get stuck on corners of an object, or make it repeatedly rotate back and forth between seeing the object and not seeing the object (for example when another object is also close at its other side).
+
+A third possibility is that we are dealing with an implementation issue. Mainly that the robot takes its rotation into account when calculating its distance from other objects. However, when checking for a collision, we only use squares parallel to the grid axis, since pygame only supports collision-checking in that way. This could cause inconsistencies between the robots perceptions and the simulated reality.
+
+The second problem with our FLS that we can extrapolate from our results is that, when the speed of the robot increases, the duration of the simulations decreases (the robot gets stuck very early on). This can be explained by the fact that the mfs use a distance in pixels to calculate the closeness of objects. The membership functions don't change based on the speed. The FLS also does not have speed as one of its inputs. This means that the FLS has no way to correct for speed. When the robot moves at a higher speed the something that was 'far' for a lower speed might now be reached in one frame.
+
+%The follow problem that can be seen is that when the terminate conditions are such that the simulation is only terminated when the robot makes a move that results in a collision, the duration of the simulations is lower in all setups. A reason for this can be the fact that the fls does not look behind it self to check for possible collisions this means that it can be hit from behind or the side by an obstacle.
 
 %TODO
-%\section{Conclusions and Future Work}
-%The conclusion goes here (to be done later).
+\section{Conclusions and Future Work}
+The conclusion goes here (to be done later).
 
 
 
