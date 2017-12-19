@@ -276,10 +276,14 @@ class Reasoner:
             end, start = output.r
             for mf_name in fs_dict[output.name].keys():
                 mf = output.get_mf(mf_name)
-                if mf.start is not None:
-                    start = min(mf.start, start)
-                if mf.end is not None:
-                    end = max(mf.end, end)
+                if type(start) == type(None):
+                    start = output.r[0]
+                else:
+                    start = mf.start if mf.start < start else start
+                if type(end) == type(None):
+                    end = output.r[1]
+                else:
+                    end = mf.end if mf.end > end else end
 
             start = max(output.r[0], start)
             end = min(output.r[1], end)

@@ -7,16 +7,17 @@ pygame.init()
 done = False
 screenWidth = 600
 screenHeight = 500
-reset = False
+stop = False
 
 # TODO remove?
 # (2, 2) (2, 1)(2, 4)(6, 6)
 TestCollisionObs = False
 N_ObsCol = 0
+reset = False
 
 N_tests = 1
 max_ticks = 1000
-g_testing = True
+g_testing = False
 g_obstSpeed = 0
 g_playerSpeed = 5
 N_collisions = 0
@@ -103,10 +104,10 @@ class Player(Unit):
         self.fls = fls
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
         self.colliding = False
-        # TODO for testing
-        self.tmp = False
         self.draw_vision = True
         self.vision_lines = []
+        # TODO for testing
+        self.tmp = False
 
     #TODO: read out raytrace in specific directions
 
@@ -135,20 +136,31 @@ class Player(Unit):
                 self.phi = (self.phi+.5*np.pi)%(2*np.pi)
 
     def update(self, objects):
-        global reset, N_ObsCol, N_collisions, prev_data
+        global reset, N_ObsCol, N_collisions, prev_data, stop
 
-        # TODO remove later
         self.vision_lines = []
 
         if self.fls:
-            df = min(self.get_distance(objects, 10/180.*np.pi),
-                     self.get_distance(objects, -10/180.*np.pi))
-            dl = min(self.get_distance(objects, 25/180.*np.pi),
-                     self.get_distance(objects, 45/180.*np.pi),
-                     self.get_distance(objects, 65/180.*np.pi))
-            dr = min(self.get_distance(objects, -25/180.*np.pi),
-                     self.get_distance(objects, -45/180.*np.pi),
-                     self.get_distance(objects, -65/180.*np.pi))
+            df = min(
+                self.get_distance(objects, -20/180.*np.pi),
+                self.get_distance(objects, -10/180.*np.pi),
+                self.get_distance(objects, 10/180.*np.pi),
+                self.get_distance(objects, 20/180.*np.pi)
+            )
+            dl = min(
+                self.get_distance(objects, 25/180.*np.pi),
+                self.get_distance(objects, 45/180.*np.pi),
+                self.get_distance(objects, 65/180.*np.pi),
+                self.get_distance(objects, 85/180.*np.pi),
+                self.get_distance(objects, 105/180.*np.pi)
+            )
+            dr = min(
+                self.get_distance(objects, -25/180.*np.pi),
+                self.get_distance(objects, -45/180.*np.pi),
+                self.get_distance(objects, -65/180.*np.pi),
+                self.get_distance(objects, -85/180.*np.pi),
+                self.get_distance(objects, -105/180.*np.pi)
+            )
 
             datapoint = {'distf':df, 'distl':dl, 'distr':dr}
             phi_dict = self.fls(datapoint)
@@ -193,10 +205,10 @@ class Player(Unit):
             self.tmp = False
 
         if prev_data != []:
-            if abs(self.x - prev_data[0]) < self.speed/100. \
-            and abs(self.y - prev_data[1]) < self.speed/100. \
-            and abs(self.phi - prev_data[2]) < 2*np.pi/100.:
-                reset = True
+            if abs(self.x - prev_data[0]) < self.speed/10. \
+            and abs(self.y - prev_data[1]) < self.speed/10. \
+            and abs(self.phi - prev_data[2]) < 2*np.pi/10.:
+                stop = True
         prev_data = [self.x, self.y, self.phi]
 
     def checkCollsion_rect(self, rect):
@@ -204,7 +216,6 @@ class Player(Unit):
         return self.rect.colliderect(rect)
 
     def draw(self, screen):
-        #TODO remove later
         if self.draw_vision:
             for i in range(len(self.vision_lines)):
                 pygame.draw.line(
@@ -249,7 +260,6 @@ class Player(Unit):
             if grid[int(1+y_pos+y_pos_O), int(1+x_pos+x_pos_O)] == 1:
                 break
             i += 1
-        # TODO remove later
         self.vision_lines += [[(x_pos,y_pos),(x_pos+x_pos_O,y_pos+y_pos_O)]]
         # Determine distance to object, adjust for size of player.
         if (abs(np.array([y_pos_O, x_pos_O])) < .5 * self.size + 1).all():
@@ -343,7 +353,7 @@ class Simulation():
         self.units = []
 
         # TODO remove later
-        first_Objs = [
+        rect_Objs = [
                 (100, 100, 40, 40),
                 (100, 200, 40, 40),
                 (100, 400, 40, 40),
@@ -381,7 +391,12 @@ class Simulation():
 #        fls = create_player_fls_from_fis('./fls/V1.fis')
         dist_range = [0,5,25,70,1000]
         phi_range = np.array(range(5))*np.pi/32
-        fls = create_player_fls(dist_range, phi_range)
+        fls = create_player_fls(
+            dist_range,
+            phi_range,
+            aggregation='max',
+            defuzzification='centroid'
+        )
         self.players = [
             Player(20, 460, 20, g_playerSpeed, fls)
         ]
@@ -449,7 +464,7 @@ def main_testing(width, height):
 
 
 def test_collisions():
-    global done, reset, N_tests, N_collisions, max_ticks
+    global done, stop, N_tests, N_collisions, max_ticks
     n = 0
     player_speeds = [5, 10]
     dist_ranges = [[0,5,25,70,1000]]
@@ -474,7 +489,7 @@ def test_collisions():
                             print('phi_range = ' + str(phi_range))
                             print('aggregation = ' + str(aggregation))
                             print('defuzzification = ' + str(defuzzification))
-                            reset = False
+                            stop = False
                             ticks = 0
                             N_collisions = 0
                             active_scene = Simulation()
@@ -486,7 +501,7 @@ def test_collisions():
                                     aggregation=aggregation,
                                     defuzzification=defuzzification
                                 )
-                            while not (reset or done or ticks >= max_ticks):
+                            while not (stop or done or ticks >= max_ticks):
                                 filteredEvents = filterEvents()
                                 active_scene.handleInput(*filteredEvents)
                                 active_scene.update()
