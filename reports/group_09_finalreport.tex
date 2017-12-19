@@ -198,6 +198,7 @@
 %
 \usepackage{array}
 \usepackage{multirow}
+\usepackage{caption}
 % Frank Mittelbach's and David Carlisle's array.sty patches and improves
 % the standard LaTeX2e array and tabular environments to provide better
 % appearance and additional user controls. As the default LaTeX2e table
@@ -355,7 +356,6 @@ Student ID: 10523626
 \maketitle
 
 
-% TODO red lines from feedback 1
 % TODO yellow marked areas from feedback 2
 
 
@@ -388,7 +388,7 @@ This paper will be about the obstacle avoidance aspect of fuzzy logic in autonom
 There is already a lot of literature about trying to make a robot traverse an environment using fuzzy logic. In this section, we will briefly discuss three papers that are relevant to our problem.
 
 %\subsection{Artificial Neural Fuzzy Logic Algorithm for Robot Path Finding (X. Bajrami; A. D\"ermaku; N. Demaku)}
-In Bajrami et al. 2015 \cite{bajrami2015artificial} two fuzzy logic systems are created and compared both systems guide a robot from point A to point B in a simulated environment with obstacles.\\
+In \cite{bajrami2015artificial}, X. Bajrami et al. create and compare two fuzzy logic implementations to guide a robot through a simulated environment with obstacles.\\
 The first implementation uses a combination of FLSs with mamdani-type inferrence and handmade rulebases and membership functions to guide the robot. The input (distances to closest objects and goal, angle towards goal and preferred turn) is used to determine acceleration levels for the left and right wheels of the robot for different objectives (like obstacle avoidance) and to determine different weights for those objectives.\\
 The second implementation used an FLS with a Sugeno-type inference system, where the membership functions were trained using a neuro-adaptive learning method.\\
 After running tests in a simulated environment, the two implementations were compared.\\
@@ -512,16 +512,6 @@ The follow problem that can be seen is that when the terminate conditions are su
 
 
 
-%\begin{center}
-%\begin{tabular}{ | m{5em} | m{5em} | m{5em} | } 
-%\hline
- %& \multicolumn{2}{c|}{R} \\ 
-%\hline
-%\multirow{2}{*}{4} & cell5 & cell6 \\ 
- %& cell8 & cell9 \\ 
-%\hline
-%\end{tabular}
-%\end{center}
 
 
 
@@ -536,6 +526,145 @@ The follow problem that can be seen is that when the terminate conditions are su
 \nocite{*}
 \bibliographystyle{IEEEtranS}
 \bibliography{mybibfile}
+
+
+\newpage
+
+\section{Appendices}
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 286 & 3 & 0.01394 \\
+ & \textit{mom} & 411 & 3 & 0.00971 \\
+ & \textit{lom} & 1023 & 2 & 0.00293 \\
+ & \textit{centroid} & 61 & 1 & 0.03226 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=1; aggregation=max}
+\label{table:ps5e1amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 69 & 1 & 0.02857 \\
+ & \textit{mom} & 449 & 1 & 0.00444 \\
+ & \textit{lom} & 62 & 1 & 0.03175 \\
+ & \textit{centroid} & 61 & 1 & 0.03226 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=1; aggregation=sum}
+\label{table:ps5e1asum}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 263 & 1 & 0.00758 \\
+ & \textit{mom} & 863 & 1 & 0.00231 \\
+ & \textit{lom} & 292 & 1 & 0.00682 \\
+ & \textit{centroid} & 156 & 1 & 0.01274 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=2; aggregation=max}
+\label{table:ps5e2amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 549 & 3 & 0.00727 \\
+ & \textit{mom} & 1804 & 7 & 0.00443 \\
+ & \textit{lom} & 68 & 1 & 0.02899 \\
+ & \textit{centroid} & 5000 & 16 & 0.00340 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=5; environment=2; aggregation=sum}
+\label{table:ps5e2asum}
+\end{center}
+
+
+
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 14 & 1 & 0.13333 \\
+ & \textit{mom} & 14 & 1 & 0.13333 \\
+ & \textit{lom} & 14 & 1 & 0.13333 \\
+ & \textit{centroid} & 32 & 1 & 0.06061 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=1; aggregation=max}
+\label{table:ps10e1amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 33 & 1 & 0.05882 \\
+ & \textit{mom} & 32 & 1 & 0.06061 \\
+ & \textit{lom} & 15 & 1 & 0.12500 \\
+ & \textit{centroid} & 32 & 1 & 0.06061 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=1; aggregation=sum}
+\label{table:ps10e1asum}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 72 & 1 & 0.02740 \\
+ & \textit{mom} & 117 & 3 & 0.03390 \\
+ & \textit{lom} & 70 & 1 & 0.02817 \\
+ & \textit{centroid} & 24 & 1 & 0.08000 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=2; aggregation=max}
+\label{table:ps10e2amax}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | m{2.8em} | m{3em} | m{2.8em} | m{5em} | m{5.2em} | }
+\hline
+\multicolumn{2}{|c|}{} & \textit{N ticks} & \textit{N collisions} & $\frac{N collisions + 1}{N ticks + 1}$ \\
+\hline
+\multirow{4}{*}{\textbf{\shortstack{De-\\fuzzifi-\\cation}}} & \textit{som} & 72 & 1 & 0.02740 \\
+ & \textit{mom} & 24 & 1 & 0.08000 \\
+ & \textit{lom} & 35 & 1 & 0.05556 \\
+ & \textit{centroid} & 24 & 1 & 0.08000 \\
+\hline
+\end{tabular}
+\captionof{table}{player-speed=10; environment=2; aggregation=sum}
+\label{table:ps10e2asum}
+\end{center}
+
+
+\newpage
+
+%TODO
+\section{Workload Distribution}
+
 
 
 % that's all folks
