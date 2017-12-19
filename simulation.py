@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pygame
 import numpy as np
-from flsMovement import calcDir, create_player_fls, create_player_fls_from_fis
+from flsMovement import create_player_fls, create_player_fls_from_fis
 
 pygame.init()
 done = False
@@ -9,23 +9,24 @@ screenWidth = 600
 screenHeight = 500
 stop = False
 
+# Variables used to change the Simulation
+# See readme
 g_fisFile = './fls/V1.fis'
 
-# TODO remove?
-# (2, 2) (2, 1)(2, 4)(6, 6)
 TestCollisionObs = False
 N_ObsCol = 0
 reset = False
 
 N_tests = 1
 max_ticks = 5000
-g_testing = False
+g_testing = True
 g_obstSpeed = 0
 g_playerSpeed = 5
 N_collisions = 0
 prev_data = []
 
 def rotate2D(M, phi):
+    """Create a 2d rotation matrix and multipy the given matrix with it"""
     R = np.array([
         [np.cos(phi),-np.sin(phi)],
         [np.sin(phi),np.cos(phi)]]
@@ -35,6 +36,7 @@ def rotate2D(M, phi):
 # This function is copied from:
 # http://www.nerdparadise.com/programming/pygame/part4
 def create_background():
+    """Creates a checker board pattern background"""
     global screenWidth, screenHeight
     width = screenWidth
     height = screenHeight
@@ -74,12 +76,6 @@ def filterEvents():
     return (filteredEvents, keysPressed)
 
 
-# TODO  [Cleaning code] - For after milestone 2
-#       give Unit x, y, width, height
-#       in player super() with width=size and height=size
-#       in rect_object super()
-#       in simulation combine calling hadleInput/update/draw
-#           for units and players
 class Unit():
     def handleInput(self, keys):
         print("Implement handleInput in child class unit")
@@ -111,11 +107,8 @@ class Player(Unit):
         # TODO for testing
         self.tmp = False
 
-    #TODO: read out raytrace in specific directions
-
-    #TODO: input function so our fuzzy system can interact with the simulation
-
     def handleInput(self, keys):
+        # Don't lissen to input when the player is controled by a FLS
         if (not self.fls):
             self.dx = 0
             self.dy = 0
@@ -138,11 +131,13 @@ class Player(Unit):
                 self.phi = (self.phi+.5*np.pi)%(2*np.pi)
 
     def update(self, objects):
+        """Caluclate new position and rotation of player"""
         global reset, N_ObsCol, N_collisions, prev_data, stop
 
         self.vision_lines = []
 
         if self.fls:
+            # Cacluctate the input values for the FLS
             df = min(
                 self.get_distance(objects, -15/180.*np.pi),
                 self.get_distance(objects, -5/180.*np.pi),
@@ -174,13 +169,13 @@ class Player(Unit):
         nx = self.x + self.dx * self.speed
         ny = self.y + self.dy * self.speed
 
-        # TODO? Does not take into account the rotation of the player,
-            # also there are no rotated objects yet
+        # Check for collision
         nRect = pygame.Rect(nx, ny, self.size, self.size)
         for obj in objects:
             if (obj.checkCollsion_rect(nRect)):
                 collision = True
 
+        # Handle movement based on if the player is collidiong with somthing
         if (not collision):
             if nx >= screenWidth - self.size or nx <= 0 \
             or ny >= screenHeight - self.size or ny <= 0:
@@ -199,11 +194,6 @@ class Player(Unit):
 
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
-        # TODO remove later
-        if self.tmp:
-            print("Distance:", self.get_distance(objects, 0/180.*np.pi))
-            self.tmp = False
-
         if prev_data != []:
             if abs(self.x - prev_data[0]) < self.speed/10. \
             and abs(self.y - prev_data[1]) < self.speed/10. \
@@ -216,14 +206,13 @@ class Player(Unit):
         return self.rect.colliderect(rect)
 
     def draw(self, screen):
+        # Draws the raycasts
         if self.draw_vision:
             for i in range(len(self.vision_lines)):
-                pygame.draw.line(
-                    screen,
-                    (255,0,0),
-                    self.vision_lines[i][0],
-                    self.vision_lines[i][1]
-                )
+                pygame.draw.line(screen, (255,0,0),
+                                 self.vision_lines[i][0],
+                                 self.vision_lines[i][1] )
+
         shift = 0.5 * self.size
         coords_O = np.array([[-1,-1],[-1,1],[1,1],[1,-1]]) * shift
         coords_O_R = rotate2D(coords_O, self.phi)
@@ -231,28 +220,36 @@ class Player(Unit):
         pygame.draw.polygon(screen, self.color, coords)
 
     def get_distance(self, objects, phi):
+        """
+        Returns the distance to the nearest object in the given direction
+        Distance is measured from the edge of the player
+        """
+        global screenWidth, screenHeight
         x_pos, y_pos = self.x + 0.5 * self.size , self.y + 0.5 * self.size
         phi = (self.phi + phi) % (2 * np.pi)
+
         # Create bitmap of environment
-        global screenWidth, screenHeight
         grid = np.zeros((screenHeight+2, screenWidth+2))
         grid[[0,-1],:] = 1
         grid[:,[0,-1]] = 1
         for obj in objects:
             x, y = np.meshgrid(range(int(obj.width)), range(int(obj.height)))
             grid[y.ravel()+int(obj.y)+1,x.ravel()+int(obj.x)+1] = 1
+
         # Determine formula to do raytracing
         x_sign = 1 if phi < np.pi else -1
         y_sign = 1 if phi < .75*np.pi or phi >= 1.75*np.pi else -1
         phi_sign = 1 if phi%np.pi < .25*np.pi else -1
-        # Angle with x-axis is smallest
+
         if abs(phi % np.pi - .5*np.pi) < .25*np.pi:
+            # Angle with x-axis is smallest
             y = lambda x: x*np.tan(phi_sign*phi+.5*np.pi)
             get_pos_O = lambda i: (y_sign*y(i), x_sign*i)
-        # Angle with y-axis is smallest
         else:
+            # Angle with y-axis is smallest
             x = lambda y: y*np.tan(phi_sign*phi)
             get_pos_O = lambda i: (y_sign*i, x_sign*x(i))
+
         # Determine first pixel of nearest object
         i = 0
         while 1:
@@ -261,6 +258,7 @@ class Player(Unit):
                 break
             i += 1
         self.vision_lines += [[(x_pos,y_pos),(x_pos+x_pos_O,y_pos+y_pos_O)]]
+
         # Determine distance to object, adjust for size of player.
         if (abs(np.array([y_pos_O, x_pos_O])) < .5 * self.size + 1).all():
             return 0
@@ -301,6 +299,7 @@ class Obstacle_rect(Unit):
 
     def update(self, objects):
         global reset, N_ObsCol, TestCollisionObs
+
         # if speed is 0 no update is needed
         if (self.speed == 0): return
         self.dTime -= 1
@@ -314,6 +313,7 @@ class Obstacle_rect(Unit):
         nx = self.x + self.d[0]
         ny = self.y + self.d[1]
 
+        # check for collision
         nRect = pygame.Rect(nx, ny, self.width, self.height)
         for i, obj in enumerate(objects):
             if (obj.checkCollsion_rect(nRect)):
@@ -322,10 +322,12 @@ class Obstacle_rect(Unit):
                     reset = True
                     N_ObsCol += 1
 
+        # move the obstacle based on if colliding or not
         if (not collision):
             self.x = max(0, min(nx, screenWidth - self.width))
             self.y = max(0, min(ny, screenHeight - self.height))
         else:
+            # I colliding rotate direction by 45 degrees
             tDeg = 45
             cosT = np.cos(tDeg)
             sinT = np.sin(tDeg)
@@ -344,15 +346,12 @@ class Simulation():
     background = create_background()
 
     def __init__(self):
-        # Add obstaceels here in form (x, y, size)
-        # Chose x, y and size to be multiples of 20 to allign with background
-        # rect_Objs = [(240, 240, 8,6), (100, 100, 40, 40), (400, 400, 60, 60),
-                     # (60, 400, 40, 40), (400, 60, 80, 80)]
         global g_playerSpeed, g_obstSpeed
         self.players = []
         self.units = []
 
-        # TODO remove later
+        # Add obstaceels here in form (x, y, size)
+        # Chose x, y and size to be multiples of 20 to allign with background
         rect_Objs = [
                 (100, 100, 40, 40),
                 (100, 200, 40, 40),
@@ -368,6 +367,7 @@ class Simulation():
                 (400,  60, 80, 80),
                 (400, 200, 40, 40),
                 (400, 400, 60, 60)]
+
         rect_Objs2 = [
                 (100, 100, 40, 40),
                 (100, 200, 40, 40),
@@ -384,9 +384,11 @@ class Simulation():
                 (400,  60, 80, 80),
                 (400, 200, 40, 40),
                 (400, 400, 60, 60)]
+
         for x, y, w, h in rect_Objs:
             self.units.append(Obstacle_rect(x, y, w, h, speed=g_obstSpeed))
 
+        # Create FLS
         if not g_testing:
             fls = create_player_fls_from_fis(g_fisFile)
         else:
@@ -398,9 +400,7 @@ class Simulation():
                 aggregation='max',
                 defuzzification='centroid'
             )
-        self.players = [
-            Player(20, 460, 20, g_playerSpeed, fls)
-        ]
+        self.players = [Player(20, 460, 20, g_playerSpeed, fls)]
 
     def handleInput(self, event, keys):
         if(g_testing): return
@@ -427,44 +427,12 @@ class Simulation():
         for player in self.players:
             player.draw(screen)
 
-# TODO remove?
-def main_testing(width, height):
-    """ 
-    Main function used for testing
-    Prints the number of frames it takes for the player to hit an obst
-    And the number of times the collision was because of the movement of
-    an obstacle.
-    """
-    global done, reset, N_tests, TestCollisionObs, N_ObsCol
-    # screen = pygame.display.set_mode((width, height))
-    ticks = 0
-    n = 0
-    active_scene = Simulation()
-
-    while not done and n < N_tests:
-        reset = False
-        active_scene = Simulation()
-        ticks = 0
-        while (not reset) and (not done):
-            filteredEvents = filterEvents()
-            active_scene.handleInput(*filteredEvents)
-            active_scene.update()
-            # active_scene.draw(screen)
-
-            # pygame.display.flip()
-            ticks += 1
-
-        print(ticks)
-        n += 1
-
-    print("Player speed: %.2f" % g_playerSpeed)
-    print("Obstacle speed: %.2f" % g_obstSpeed)
-
-    if(TestCollisionObs):
-        print('Number of collisions by obstacle: %i' % N_ObsCol)
-
 
 def test_collisions():
+    """ 
+    Used in for collection data, the simulation is not shown
+    Data is printed to the stdout
+    """
     global done, stop, N_tests, N_collisions, max_ticks
     n = 0
     player_speeds = [5, 10]
@@ -513,7 +481,6 @@ def test_collisions():
                             print((ticks+1)/float(N_collisions+1))
                             print((N_collisions+1)/float(ticks+1))
                             n += 1
-    return None
 
 def main(width, height):
     global done
@@ -534,7 +501,6 @@ def main(width, height):
 
 if __name__ == "__main__":
     if g_testing:
-#        main_testing(screenWidth, screenHeight)
         test_collisions()
     else:
         main(screenWidth, screenHeight)
