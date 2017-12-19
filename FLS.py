@@ -112,14 +112,8 @@ class Variable:
         self.mfs = mfs
 
     def membership(self, x):
-        # TODO
-#        assert x >= self.r[0] and x <= self.r[1], "Value out of range"
-        if not (x >= self.r[0] and x <= self.r[1]):
-            print(self.name)
-            print(x)
-            # print('[WARNING] Value out of range')
-            # print('\t[TODO] cap variables in flsMovement.calcDir')
-            # print('\t       and reinstate assert/exception')
+        # make sure value is in variables range
+        assert x >= self.r[0] and x <= self.r[1], "Value out of range"
         return {mf.name: mf.membership(x) for mf in self.mfs}
 
     # returns mf by name
@@ -208,9 +202,7 @@ class Rulebase:
 ###############################################################################
 
 # Reasoner ####################################################################
-# TODO needs huge overhaul to support different types of
-    # inference, aggregation and defuzzification
-# TODO maybe make variable names shorter/more appropriate
+
 
 class Reasoner:
     def __init__(self, rulebase, inputs, outputs, n_points, 
@@ -239,6 +231,7 @@ class Reasoner:
         return crisp_outputs
 
     def calc_mem_at_point(self, x, output, fs_dict):
+        # Collect all membership values for the given output
         memberships = output.membership(x)
         values_at_x = []
         for (mf_name, fs) in fs_dict[output.name].items():
@@ -252,15 +245,11 @@ class Reasoner:
         elif self.aggMethod == 'SUM':
             pair = (x, sum(values_at_x))
 
-        # elif self.aggMethod == 'PROBOR':
-            # pass
-
         else:
             assert "Unknown aggregation method"
 
         return pair
 
-    # TODO support more types of aggregation
     def aggregate(self, fs_dict):
         # First find where the aggrageted area starts and ends
         # Your code here
@@ -284,9 +273,6 @@ class Reasoner:
                     end = output.r[1]
                 else:
                     end = mf.end if mf.end > end else end
-
-            start = max(output.r[0], start)
-            end = min(output.r[1], end)
 
             # Second discretize this area and aggragate
             cur_input_value_pairs = []
@@ -342,145 +328,4 @@ class Reasoner:
         return crisp_values
 
 ###############################################################################
-
-# Tests #######################################################################
-# TODO to be removed at some point
-# also the matplotlib import (that's why I put it here)
-import matplotlib.pyplot as plt
-
-# not used anymore
-def pltMF(mf, p, q):
-    t = np.arange(p, q, .01)
-    mfr = []
-    for x in t:
-        mfr.append(mf.membership(x))
-    plt.figure()
-    plt.plot(t, mfr, label=mf.name)
-    plt.legend()
-    plt.show()
-
-
-def plot_var(var):
-    x = np.arange(var.r[0], var.r[1], (var.r[1]-var.r[0])/100.)
-    plt.figure()
-    for i in range(len(var.mfs)):
-        mem = []
-        for xx in x:
-            mem.append(var.mfs[i].membership(xx))
-        plt.plot(x, mem, color='C'+str(i))
-    plt.show()
-    return
-
-
-if __name__ == "__main__":
-
-    # Input variable for your income
-    # Your code here
-    mfs_income = [
-        TrapezoidalMF("low", 0, 0, 200, 400),
-        TriangularMF("medium", 200, 500, 800),
-        TrapezoidalMF("high", 600, 800, 1000, 1000)
-    ]
-    income = Input("income", (0, 1000), mfs_income)
-
-    # Input variable for the quality
-    # Your code here
-    mfs_quality = [
-        TrapezoidalMF("bad", 0, 0, 2, 4),
-        TriangularMF("okay", 2, 5, 8),
-        TrapezoidalMF("amazing", 6, 8, 10, 10)
-    ]
-    quality = Input("quality", (0, 10), mfs_quality)
-
-    # Output variable for the amount of money
-    # Your code here
-    mfs_money = [
-        TrapezoidalMF("low", 0, 0, 100, 250),
-        TriangularMF("medium", 150, 250, 350),
-        TrapezoidalMF("high", 250, 400, 500, 500),
-    ]
-    money = Output("money", (0, 500), mfs_money)
-    money2 = Output("money2", (0, 500), mfs_money)
-
-    inputs = [income, quality]
-    outputs = [money, money2]
-
-    #print(income.membership(489))
-    #print(quality.membership(6))
-    #print(money.membership(222))
-
-    #plot_var(income)
-    #plot_var(quality)
-    #plot_var(money)
-
-    rule1 = Rule(
-        {"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low"}
-    )
-    #print(rule1.get_fs({"income":200, "quality":6.5}, inputs))
-    #print(rule1.get_fs({"income":0, "quality":10}, inputs))
-
-    rule2 = Rule(
-        {"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high"}
-    )
-    #print(rule2.get_fs({"income":100, "quality":8}, inputs))
-    #print(rule2.get_fs({"income":700, "quality":3}, inputs))
-
-
-    # RULEBASE
-    # Add the rules listed in the question description
-    # Your code here
-    rules = [
-        Rule({"income":"low", "quality":"amazing"}, ("and", "min"), {"money":"low", "money2":"low"}),
-        Rule({"income":"medium", "quality":"amazing"}, ("and", "min"), {"money":"low", "money2":"low"}),
-        Rule({"income":"high", "quality":"amazing"}, ("and", "min"), {"money":"low", "money2":"low"}),
-        Rule({"income":"low", "quality":"okay"}, ("and", "min"), {"money":"low"}),
-        Rule({"income":"medium", "quality":"okay"}, ("and", "min"), {"money":"medium", "money2":"low"}),
-        Rule({"income":"high", "quality":"okay"}, ("and", "min"), {"money":"medium", "money2":"low"}),
-        Rule({"income":"low", "quality":"bad"}, ("and", "min"), {"money":"low"}), # TODO note: has no money2 value
-        Rule({"income":"medium", "quality":"bad"}, ("and", "min"), {"money":"medium", "money2":"low"}),
-        Rule({"income":"high", "quality":"bad"}, ("and", "min"), {"money":"high", "money2":"low"})
-    ]
-    rulebase = Rulebase(rules)
-    # Test your implementation of calculate_firing_strengths()
-    # Enter your answers in the Google form to check them, round to two decimals
-    datapoint = {"income":500, "quality":3}
-    #print(rulebase.get_fs(datapoint, inputs))
-    datapoint = {"income":234, "quality":7.5}
-    #print(rulebase.get_fs(datapoint, inputs))
-
-
-    # REASONER
-    # Test your implementation of the fuzzy inference
-    # Enter your answers in the Google form to check them, round to two decimals
-
-    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "som")
-    datapoint = {"income":100, "quality":1}
-    print(thinker.inference(datapoint))
-
-    thinker = Reasoner(rulebase, inputs, outputs, 101, 'max', "som")
-    datapoint = {"income":550, "quality":4.5}
-    print(thinker.inference(datapoint))
-
-    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "som")
-    datapoint = {"income":900, "quality":6.5}
-    print(thinker.inference(datapoint))
-
-    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "lom")
-    datapoint = {"income":100, "quality":1}
-    print(thinker.inference(datapoint))
-
-    thinker = Reasoner(rulebase, inputs, outputs, 101, 'max', "lom")
-    datapoint = {"income":550, "quality":4.5}
-    print(thinker.inference(datapoint))
-
-    thinker = Reasoner(rulebase, inputs, outputs, 201, 'max', "lom")
-    datapoint = {"income":900, "quality":6.5}
-    print(thinker.inference(datapoint))
-
-
-    # TODO
-    # print("[!] Further testing needs to be done by comparing results to MATLAB")
-    # print("    and using different membership functions and rule operations.")
-
-    ###############################################################################
 
