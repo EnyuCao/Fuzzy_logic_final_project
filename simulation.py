@@ -9,6 +9,8 @@ screenWidth = 600
 screenHeight = 500
 stop = False
 
+g_fisFile = './fls/V1.fis'
+
 # TODO remove?
 # (2, 2) (2, 1)(2, 4)(6, 6)
 TestCollisionObs = False
@@ -17,7 +19,7 @@ reset = False
 
 N_tests = 1
 max_ticks = 5000
-g_testing = True
+g_testing = False
 g_obstSpeed = 0
 g_playerSpeed = 5
 N_collisions = 0
@@ -385,16 +387,17 @@ class Simulation():
         for x, y, w, h in rect_Objs:
             self.units.append(Obstacle_rect(x, y, w, h, speed=g_obstSpeed))
 
-#TODO remove
-#        fls = create_player_fls_from_fis('./fls/V1.fis')
-        dist_range = [0,5,25,70,1000]
-        phi_range = np.array(range(5))*np.pi/32
-        fls = create_player_fls(
-            dist_range,
-            phi_range,
-            aggregation='max',
-            defuzzification='centroid'
-        )
+        if not g_testing:
+            fls = create_player_fls_from_fis(g_fisFile)
+        else:
+            dist_range = [0,5,25,70,1000]
+            phi_range = np.array(range(5))*np.pi/32
+            fls = create_player_fls(
+                dist_range,
+                phi_range,
+                aggregation='max',
+                defuzzification='centroid'
+            )
         self.players = [
             Player(20, 460, 20, g_playerSpeed, fls)
         ]
