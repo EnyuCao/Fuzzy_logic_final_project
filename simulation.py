@@ -196,7 +196,6 @@ class Player(Unit):
             and abs(self.phi - prev_data[2]) < 2*np.pi/100.:
                 reset = True
         prev_data = [self.x, self.y, self.phi]
-        print(reset)
 
     def checkCollsion_rect(self, rect):
         """ Checks for collsion with the given rect """
