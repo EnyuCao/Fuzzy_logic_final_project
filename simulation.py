@@ -14,9 +14,9 @@ reset = False
 TestCollisionObs = False
 N_ObsCol = 0
 
-N_tests = 20
+N_tests = 1
 max_ticks = 1000
-g_testing = True
+g_testing = False
 g_obstSpeed = 0
 g_playerSpeed = 5
 N_collisions = 0
@@ -213,13 +213,9 @@ class Player(Unit):
                     self.vision_lines[i][0],
                     self.vision_lines[i][1]
                 )
-        R = np.array([
-            [np.cos(self.phi),-np.sin(self.phi)],
-            [np.sin(self.phi),np.cos(self.phi)]]
-        )
         shift = 0.5 * self.size
         coords_O = np.array([[-1,-1],[-1,1],[1,1],[1,-1]]) * shift
-        coords_O_R = coords_O.dot(R)
+        coords_O_R = rotate2D(coords_O, self.phi)
         coords = (coords_O_R + shift) + np.array([self.x,self.y])
         pygame.draw.polygon(screen, self.color, coords)
 
