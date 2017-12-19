@@ -16,7 +16,7 @@ N_ObsCol = 0
 
 N_tests = 1
 max_ticks = 1000
-g_testing = False
+g_testing = True
 g_obstSpeed = 0
 g_playerSpeed = 5
 N_collisions = 0
@@ -447,6 +447,10 @@ def main_testing(width, height):
 def test_collisions():
     global done, reset, N_tests, N_collisions, max_ticks
     n = 0
+    print('[1] number of ticks')
+    print('[2] number of collisions')
+    print('[3] [1]/[2]')
+    print('[4] [2]/[1]')
     while not done and n < N_tests:
         reset = False
         ticks = 0
@@ -457,7 +461,11 @@ def test_collisions():
             active_scene.handleInput(*filteredEvents)
             active_scene.update()
             ticks += 1
-        print(ticks, N_collisions)
+        print()
+        print(ticks)
+        print(N_collisions)
+        print(ticks/float(N_collisions))
+        print(N_collisions/float(ticks))
         n += 1
 
 def main(width, height):
